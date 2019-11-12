@@ -28,6 +28,15 @@ vignettes/*.pdf
 /*_cache/
 /cache/
 
+#PDF
+*.pdf
+
+#File not to be uploaded
+assignment3_help.R
+
+#DS_store
+.DS_Store
+
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
