@@ -1,0 +1,57 @@
+---
+title: "Lab 1"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lab 1
+
+
+
+```{r Task2, echo=FALSE, message=FALSE, warning=FALSE}
+library(kknn)
+
+#1.
+data <- read.csv2("spambase.csv")
+
+#Split data into training and test set.
+
+n=dim(data)[1]
+set.seed(12345)
+id=sample(1:n, floor(n*0.5))
+train=data[id,]
+test=data[-id,]
+
+#2.
+
+model <- glm(Spam ~ ., family=binomial, data=train) #GLM model for data with family binomial --> only 0s and 1s
+
+predictModel= predict(model, newdata=test, type="response") 
+
+probability <- ifelse(predictModel > 0.5, "1", "0") #Split up the model into spam and not spam
+
+confMatrix <- table(probability, test[,"Spam"]) #Confusionmatrix from the model
+
+modelDiag <- diag(confMatrix) #Diagonal of the 
+
+missClMa1 = 1-(sum(modelDiag)/sum(confMatrix)) #Missclassfication rate by dividing the diagonal from the confusionmatricx with the whole confusionmatrix
+
+#Prints results
+print("Confusion matrix 2:")
+print(confMatrix)
+print("missclassification 2:")
+print(missClMa1)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
