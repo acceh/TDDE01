@@ -44,7 +44,7 @@ print(bayesianfunc(machines,1,10))
 
 curve(bayesianfunc(machines,x,10), xlab="θ", ylab="l(θ)", from=0, to=4, col="green", add=TRUE)
 
-#min theta for bayesianfunc
+#min theta for bayesianfunc. I get it from deriving the bayesianfunc with respect to theta and set it to = 0 to get the min
 print("Min θ bayesian func.:")
 print(dim(machines)[1]/(sum(machines)+10))
 
@@ -52,10 +52,13 @@ print(dim(machines)[1]/(sum(machines)+10))
 #5
 θ = minthetalikelihood(machines)
 
+#Creates 5 new data points with the rate from 2.
 newdata = rexp(50, rate=θ)
 print(newdata)
+#Stores the old data from the Length col in the machines
 olddata <- machines$Length
 
+#Creages new window for plots
 dev.new()
 hist(olddata, col="red", xlim=c(0,5), xlab="x")
 hist(newdata, col="blue", xlim=c(0,5), add=TRUE, xlab="x")
