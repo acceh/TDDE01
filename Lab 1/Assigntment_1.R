@@ -51,34 +51,25 @@ print(missClMa2)
 #KKNN with K=30
 
 kknn_K30 = kknn(Spam ~ ., train=train, test=test, k=30)
-kknn_K30_pred = numeric(length(predict(kknn_K30)))
+kknn_K30_pred = predict(kknn_K30)
 
-
-for (i in 1:length(fitted(kknn_K30))){
-  if (fitted(kknn_K30)[i] > 0.5) {
-    kknn_K30_pred[i] = 1
-  }
-}
+kknn_K30_pred <- ifelse(kknn_K30_pred > 0.5, 1, 0) #Split up the model into spam and not spam
 
 
 confMa_K30 = table(kknn_K30_pred, test[,"Spam"])
 misCl_K30 = 1-sum(diag(confMa_K30)/sum(confMa_K30))
 
-print("missclassification 4:")
+print("Missclassification 4:")
 print(misCl_K30)
 
 
 #5.
 #KKNN with K=1
 kknn_K1 = kknn(Spam ~ ., train=train, test=test, k=1)
-kknn_K1_pred = numeric(length(fitted(kknn_K1)))
+kknn_K1_pred = predict(kknn_K1)
 
+kknn_K1_pred <- ifelse(kknn_K1_pred > 0.5, 1, 0) #Split up the model into spam and not spam
 
-for (i in 1:length(fitted(kknn_K1))){
-  if (fitted(kknn_K1)[i] > 0.5) {
-    kknn_K1_pred[i] = 1
-  }
-}
 
 
 confMa_K1 = table(kknn_K1_pred, test[,"Spam"])
