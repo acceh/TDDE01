@@ -114,7 +114,7 @@ for (i in 1:6) {
   print(mse_test[i])
 }
 
-plot(1:6, mse_train, col="blue", type="b", xlab="i", ylab="MSE", main="MSE dependencie of i. Where red = test, blue= train")
+plot(1:6, mse_train, col="blue", type="b", xlab="i", ylab="MSE", main="MSE dependencie of i. Where green = test, blue= train")
 par(new=TRUE)
 plot(1:6, mse_test,  col="green", type="b")
 
