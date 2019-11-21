@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-```{r Task2, echo=FALSE, message=FALSE, warning=FALSE}
+```{r Task2, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
 library(kknn)
 
 #1.
