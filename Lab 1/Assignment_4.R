@@ -1,5 +1,8 @@
 library(readxl)
 library(Metrics)
+library(MASS)
+library(ggplot2)
+library(glmnet)
 
 set.seed(12345)
 
@@ -66,8 +69,8 @@ m1_model = lm(formula = Moisture ~ Protein, data=train)
 m2_model = lm(formula = Moisture ~ Protein + I(Protein^2), data = train)
 m3_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3), data = train)
 m4_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4), data = train)
-m5_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^3) + I(Protein^5), data = train)
-m6_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^3) + I(Protein^3) + I(Protein^6), data = train)
+m5_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4) + I(Protein^5), data = train)
+m6_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4) + I(Protein^5) + I(Protein^6), data = train)
 
 #Predictions with the help of the training data
 m1_model_pred = predict(m1_model, newdata=train)
@@ -88,12 +91,12 @@ m6_model_pred_test = predict(m6_model, newdata=test)
 
 #Mean squared error for the training data
 mse_train <- vector()
-mse_train[1] <- mse(train$Moisture, m1_model_pred)
-mse_train[2] <- mse(train$Moisture, m2_model_pred)
-mse_train[3] <- mse(train$Moisture, m3_model_pred)
-mse_train[4] <- mse(train$Moisture, m4_model_pred)
-mse_train[5] <- mse(train$Moisture, m5_model_pred)
-mse_train[6] <- mse(train$Moisture, m6_model_pred)
+mse_train[1] <- mse(m_train, m1_model_pred)
+mse_train[2] <- mse(m_train, m2_model_pred)
+mse_train[3] <- mse(m_train, m3_model_pred)
+mse_train[4] <- mse(m_train, m4_model_pred)
+mse_train[5] <- mse(m_train, m5_model_pred)
+mse_train[6] <- mse(m_train, m6_model_pred)
 
 for (i in 1:6) {
   cat("MSE for training data with i=", i)
@@ -114,15 +117,39 @@ for (i in 1:6) {
   print(mse_test[i])
 }
 
-plot(1:6, mse_train, col="blue", type="b", xlab="i", ylab="MSE", main="MSE dependencie of i. Where green = test, blue= train")
-par(new=TRUE)
-plot(1:6, mse_test,  col="green", type="b")
+plot(1:6, mse_train, col="blue", type="l", xlab="i", ylab="MSE", ylim=c(23,45), main="MSE dependencie of i. Where green = test, blue= train")
+lines(1:6, mse_test,col="green")
 
-#Looks like i = 1 or 4 is the best observation. Prob lower because of overfitting with the others
+
 
 #4
 
+fitted_fat <- lm(tecator$Fat ~ ., data=tecator[,2:101])
+steps <- stepAIC(fitted_fat, direction="both")
+
+print(step$anovastep$anova
+
+print("Number of selected variables:")
+print(length(steps$coefficients)-1) 
+regression model with the same predictor and response variables. 
+#Present a plot showing how model coefficients depend on the log of the penalty factor lambda and report how the coefficients change with lambda.
+covariates=scale(tecator[,2:101])
+response=scale(tecator[,102])
+model_ridge=glmnet(as.matrix(covariates), response, alpha=0,family="gaussian")
+plot(model_ridge, xvar="lambda", label=TRUE, main="Ridge Regression\n")
+
+#6
+#Repeat step 5 but fit LASSO instead of the Ridge regression and compare the plots from steps 5 and 6. Conclusions?
+model_lasso = glmnet(as.matrix(covariates), response, alpha = 1, family="gaussian")
+plot(model_lasso, xvar="lambda", label=TRUE, main="Lasso Regression\n")
+
+#7
+#Use cross-validation to find the optimal LASSO model (make sure that case
+#𝜆𝜆 = 0 is also considered by the procedure) , report the optimal 𝜆𝜆 and how many variables were chosen by the model and make conclusio
+#ns. Present also a plot showing the dependence of the CV score and comment how the CV score changes with 𝜆𝜆.
 
 
-
-
+cv_lasso_model_model = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", lambda=seq(0,1,0.001))
+plot(cv_lasso_model)
+coef(cv_lasso_model, s="lambda.min")
+print(cv_lasso_model$lambda.min)

@@ -37,7 +37,7 @@ print("missclassification 2:")
 print(missClMa1)
 
 #3.
-#3. Use logistic regression to classify the test data by the classification principle
+#Use logistic regression to classify the test data by the classification principle
 #Y_hat=1 if p(Y=1|X) > 0.8, otherwise Y_hat=0
 #and report the confusion matrices (use table()) and the misclassification rates for
 #training and test data. Compare the results. What effect did the new rule have?

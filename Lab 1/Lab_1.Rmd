@@ -1,20 +1,18 @@
 ---
 title: "Lab 1"
 output: pdf_document
+author: "By Axel Holmberg (axeho681)"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(kknn)
 ```
 
-## Lab 1
-
-
-
-```{r Task2, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
-library(kknn)
-
-#1.
+# Assignment 1
+## 1.
+*Import the data into R and divide it into training and test sets (50%/50%)*
+```{r Task1, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
 data <- read.csv2("spambase.csv")
 
 #Split data into training and test set.
@@ -24,20 +22,27 @@ set.seed(12345)
 id=sample(1:n, floor(n*0.5))
 train=data[id,]
 test=data[-id,]
+```
 
-#2.
+## 2.
+*Use logistic regression (functions glm(), predict()) to classify the training and test data by the classification principle $\hat{Y}=1$ if $(Y=1|X) > 0.5$, otherwise $\hat{Y}=0$ and report the confusion matrices (use table()) and the misclassification rates for training and test data. Analyse the obtained results.*
 
-model <- glm(Spam ~ ., family=binomial, data=train) #GLM model for data with family binomial --> only 0s and 1s
+```{r Task 2, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#GLM model for data with family
+#binomial --> only 0s and 1s
+model <- glm(Spam ~ ., family=binomial, data=train) 
 
 predictModel= predict(model, newdata=test, type="response") 
 
-probability <- ifelse(predictModel > 0.5, "1", "0") #Split up the model into spam and not spam
+#Split up the model into spam and 
+#not spam
+probability <- ifelse(predictModel > 0.5, "1", "0") 
 
 confMatrix <- table(probability, test[,"Spam"]) #Confusionmatrix from the model
-
-modelDiag <- diag(confMatrix) #Diagonal of the 
-
-missClMa1 = 1-(sum(modelDiag)/sum(confMatrix)) #Missclassfication rate by dividing the diagonal from the confusionmatricx with the whole confusionmatrix
+#Diagonal of the misclassfication rate by dividing the 
+#diagonal from the confusionmatricx with the whole confusionmatrix
+modelDiag <- diag(confMatrix) 
+missClMa1 = 1-(sum(modelDiag)/sum(confMatrix)) 
 
 #Prints results
 print("Confusion matrix 2:")
@@ -46,12 +51,299 @@ print("missclassification 2:")
 print(missClMa1)
 ```
 
-## Including Plots
+#### Analyse the obtained results.
+The confusion matrix gives us the misclassification rate. I would say that the misclassification rate is okay for its' aplication. It is all very dependent on the use case though.
 
-You can also embed plots, for example:
+## 3.
+*Use logistic regression to classify the test data by the classification principle $\hat{Y}=1$ if $p(Y=1|X) > 0.8$, otherwise $\hat{Y}=0$ and report the confusion matrices (use table()) and the misclassification rates for training and test data. Compare the results. What effect did the new rule have?*
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+#Split up the model into spam and not spam
+probability2 <- ifelse(predictModel > 0.8, "1", "0") 
+
+confMatrix2 <- table(probability2, test[,"Spam"]) 
+
+modelDiag2 <- diag(confMatrix2)
+
+missClMa2 = 1-(sum(modelDiag2)/sum(confMatrix2))
+
+
+print("Confusion matrix 3:")
+print(confMatrix2)
+print("missclassification 3:")
+print(missClMa2)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#### What effects did the new rule have?
+The new rule made it so that the rate is a bit worse, so it should stay at the previous value.
+
+
+## 4.
+*Use standard classifier kknn() with K=30 from package kknn, report the the misclassification rates for the training and test data and compare the results with step 2.*
+```{r}
+#KKNN with K=30
+
+kknn_K30 = kknn(Spam ~ ., train=train, test=test, k=30)
+kknn_K30_pred = predict(kknn_K30)
+
+#Split up the model into spam and not spam
+kknn_K30_pred <- ifelse(kknn_K30_pred > 0.5, 1, 0) 
+
+
+confMa_K30 = table(kknn_K30_pred, test[,"Spam"])
+misCl_K30 = 1-sum(diag(confMa_K30)/sum(confMa_K30))
+
+print("Misclassification 4:")
+print(misCl_K30)
+```
+
+#### Compare the results with step 2.
+The misclassification rate is even worse than in step 2.
+
+## 5.
+*Repeat step 4 for $K=1$ and compare the results with step 4. What effect does the decrease of K lead to and why?*
+
+```{r}
+#KKNN with K=1
+kknn_K1 = kknn(Spam ~ ., train=train, test=test, k=1)
+kknn_K1_pred = predict(kknn_K1)
+
+#Split up the model into spam and not spam
+kknn_K1_pred <- ifelse(kknn_K1_pred > 0.5, 1, 0) 
+
+confMa_K1 = table(kknn_K1_pred, test[,"Spam"])
+misCl_K1 = 1-sum(diag(confMa_K1)/sum(confMa_K1))
+
+print("missclassification 5:")
+print(misCl_K1)
+```
+
+#### What effect does the decrease of K lead to and why?
+The decrease in K leads to a noisier prediction and is thereby worse.
+
+# Assignment 2
+## 1.
+*Import the data to R.*
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(readxl)
+
+set.seed(12345)
+machines <- read_excel("machines.xlsx")
+
+```
+
+## 2.
+*Assume the probability model $x$ ($\mathrm{p}(x \mid \theta)=\theta e^{-\theta x}$) for x=Length in which observations are independent and identically distributed. What is the distribution type of x? Write a function that computes the log-likelihood log(p(x|theta)) for a gven theta and a given data vector x. Plot the curve showing the dependence of log-likelihood on theta where the entire data is used for fitting. What is the maximum likelihood value of theta according to the plot?*
+
+```{r}
+#Comes from  p(x|theta) = theta*exp(-theta*x) and then using thew likelihood 
+#function with it and then minimizing that with 
+#-log(L(theta))=-log((theta^n*exp(-theta*sum(x)). 
+likelihoodlog = function(x, theta) {
+  return(-dim(x)[1]*log(theta) + theta*sum(x))
+}
+print(likelihoodlog(machines[1], 1))
+
+#Plot curve
+curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
+
+#Min theta. Comes from deriving the loglikelihood-function. 
+#The more data I have the more exactly I can pinpoint the exact point of failure
+minvalue = dim(machines)/sum(machines)
+print("Min theta:")
+minthetalikelihood = function(x) {
+  return (dim(x)[1]/sum(x))
+}
+print(minthetalikelihood(machines))
+
+```
+
+
+## 3.
+*Repeat step 2 but use only 6 first observations from the data, and put the two log-likelihood curves (from step 2 and 3) in the same plot. What can you say about reliability of the maximum likelihood solution in each case?*
+
+```{r}
+curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
+curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="red", add=TRUE, main="ljnasd")
+```
+Where the blue line is with all the data points and the red line is with only the first six data points.
+```{r}
+print("Min theta:")
+print(minthetalikelihood(machines[1:6,]))
+```
+
+#### What can you say about reliability of the maximum likelihood solution in each case?
+The maximum likelihood wolution for the 
+
+## 4.
+*Assume now a Bayesian model with $p(x|\theta)=\theta e^{-\theta x}$ and a prior $\mathrm{p}(\theta)=\lambda e^{-\lambda \theta}$, $\lambda=10$.Write a function computing $\mathrm{l}(\theta)=log(p(x|\theta)p(\theta))$. What kind of measure is actually computed by this function? Plot the curve showing the dependence of $l(\theta)$ on theta computed using the entire data and overlay it with a plot from step 2. Find an optimal theta and compare your result with the previous findings.*
+
+```{r}
+bayesianfunc = function(x, theta, lambda) {
+  return(likelihoodlog(x, theta) - log(lambda) + lambda*theta)
+} 
+
+print("Bayesianfunction:")
+print(bayesianfunc(machines,1,10))
+
+curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
+curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="red", add=TRUE)
+curve(bayesianfunc(machines,x,10), xlab="theta", ylab="l(theta)", xlim=c(0,4), ylim=c(0,60),
+      col="green", add=TRUE)
+
+#min theta for bayesianfunc. I get it from deriving the bayesianfunc 
+#with respect to theta and set it to = 0 to get the min.
+print("Min theta bayesian func.:")
+print(dim(machines)[1]/(sum(machines)+10))
+```
+
+#### Compare your results with the previous findings
+
+
+## 5.
+*Use theta value found in step 2 and generate 50 new observations from $p(x|\theta)=\theta e^{-\theta x}$ (use standard random number generators). Create the histograms of the original and the new data and make conclusions.*
+```{r}
+theta = minthetalikelihood(machines)
+
+##Creaes 5 new data points with the rate from 2.
+newdata = rexp(50, rate=theta)
+print(newdata)
+#Stores the old data from the Length col in the machines
+olddata <- machines$Length
+
+#Creages new window for plots
+hist(olddata, col="red", xlim=c(0,5), ylim=c(0,20), xlab="x", main="Histogram of the original and new data")
+hist(newdata, col="blue", xlim=c(0,5), ylim=c(0,20), add=TRUE, breaks="FD", xlab="x")
+```
+#### Conclusions
+asd
+
+
+# Assignment 4
+```{r echo=FALSE}
+library(readxl)
+library(Metrics)
+library(MASS)
+library(ggplot2)
+library(glmnet)
+
+set.seed(12345)
+
+```
+
+## 1.
+*Import data to R and create a plot of Moisture versus Protein. Do you think that these data are described well by a linear model?*
+```{r}
+#Imports file
+tecator <- read_excel("tecator.xlsx")
+moisture = tecator$Moisture;
+protein = tecator$Protein;
+
+#Plots the moisture and protein
+plot(protein, moisture, xlab="Moisture", ylab="Protein", main="Moisture vs. Protein")
+
+#Quite well with a linear model. Prob quite large deviations sometimes though
+
+#Below is just to see the linear model
+data_moisture_protein = tecator[,103:104]
+
+fit1 <- lm(formula = moisture ~ protein, data=data_moisture_protein)
+#Gives the 
+fitted1 = predict(fit1, interval="confidence")
+#Plots line with protein as x and the new predicted fitted values as y
+lines(protein, fitted1[, "fit"])
+```
+
+#### Do you think that these data are described well by a linear model?
+Yes, it can be described quite well as can be seen in the picture above. There are a few outliers though.
+
+## 2.
+*Consider model $M_i$ in which Moisture is normally distributed, and the expected Moisture is a polynomial function of Protein including the polynomial terms up to power $i$(i.e M1 is a linear model, M2 is a quadratic model and so on). Report a probabilistic model that describes $M_i$ . Why is it appropriate to use MSE criterion when fitting this model to a training data?*
+
+
+Consider the functions are: $M_1 = w_0 + w_1*x_1 + e$, $M_2 = w_0 + w_1*x_1 + w_2*x_2^2 + e$ and so on. This means that ...
+
+
+## 3.
+*Divide the data into training and validation sets( 50%/50%) and fit models $M_i, i=1 ...6$. For each model, record the training and the validation MSE and present a plot showing how training and validation MSE depend on i (write some R code to make this plot). Which model is best according to the plot? How do the MSE values change and why? Interpret this picture in terms of bias-variance tradeoff.*
+
+```{r include=FALSE}
+#Splits the data into training set and test set using only moisture and protein cols
+n=dim(tecator[,103:104])
+set.seed(12345)
+id=sample(1:n[1], floor(n*0.5))
+train=tecator[id,103:104]
+test=tecator[-id,103:104]
+
+#Splits up the test and training data to protein and moisture respectively
+p_train = train$Protein
+m_train = train$Moisture
+p_test = test$Protein
+m_test = test$Moisture
+
+
+#Models below for M1-M6, regression
+m1_model = lm(formula = Moisture ~ Protein, data=train)
+m2_model = lm(formula = Moisture ~ Protein + I(Protein^2), data = train)
+m3_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3), data = train)
+m4_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4), data = train)
+m5_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4) + I(Protein^5), data = train)
+m6_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4) + I(Protein^5) + I(Protein^6), data = train)
+
+#Predictions with the help of the training data
+m1_model_pred = predict(m1_model, newdata=train)
+m2_model_pred = predict(m2_model, newdata=train)
+m3_model_pred = predict(m3_model, newdata=train)
+m4_model_pred = predict(m4_model, newdata=train)
+m5_model_pred = predict(m5_model, newdata=train)
+m6_model_pred = predict(m6_model, newdata=train)
+
+#Predictions with the help of the test data
+m1_model_pred_test = predict(m1_model, newdata=test)
+m2_model_pred_test = predict(m2_model, newdata=test)
+m3_model_pred_test = predict(m3_model, newdata=test)
+m4_model_pred_test = predict(m4_model, newdata=test)
+m5_model_pred_test = predict(m5_model, newdata=test)
+m6_model_pred_test = predict(m6_model, newdata=test)
+
+
+#Mean squared error for the training data
+mse_train <- vector()
+mse_train[1] <- mse(m_train, m1_model_pred)
+mse_train[2] <- mse(m_train, m2_model_pred)
+mse_train[3] <- mse(m_train, m3_model_pred)
+mse_train[4] <- mse(m_train, m4_model_pred)
+mse_train[5] <- mse(m_train, m5_model_pred)
+mse_train[6] <- mse(m_train, m6_model_pred)
+
+#Mean squared error for the testing data
+mse_test <- vector()
+mse_test[1] <- mse(m_test, m1_model_pred_test)
+mse_test[2] <- mse(m_test, m2_model_pred_test)
+mse_test[3] <- mse(m_test, m3_model_pred_test)
+mse_test[4] <- mse(m_test, m4_model_pred_test)
+mse_test[5] <- mse(m_test, m5_model_pred_test)
+mse_test[6] <- mse(m_test, m6_model_pred_test)
+
+plot(1:6, mse_train, col="blue", type="l", xlab="i", ylab="MSE", ylim=c(23,45), main="MSE dependencie of i. Where green = test, blue= train")
+lines(1:6, mse_test,col="green")
+```
+
+#### Which model is best according to the plot? How do the MSE values change and why? Interpret this picture in terms of bias-variance tradeoff.
+TODO
+
+## 4.
+*Perform variable selection of a linear model in which Fat is response and Channel1-Channel100 are predictors by using stepAIC. Comment on how many variables were selected.*
+```{r include=FALSE}
+fitted_fat <- lm(tecator$Fat ~ ., data=tecator[,2:101])
+steps <- stepAIC(fitted_fat, direction="both")
+```
+````{r}
+print("Number of selected variables:")
+print(length(steps$coefficients)-1) 
+`````
+There are 63 variables chosen from the stepAIC method.
+
+
+
+

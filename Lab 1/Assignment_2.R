@@ -6,9 +6,6 @@ set.seed(12345)
 #imports file
 machines <- read_excel("machines.xlsx")
 
-str(machines)
-head(machines)
-
 #2
 #Assume the probability model p(x|theta)=theta*exp(-theta*x) for x=Length in which
 #observations are independent and identically distributed. What is the distribution type of x? Write a function that 
@@ -29,7 +26,7 @@ curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
 minvalue = dim(machines)/sum(machines)
 print("Min θ:")
 minthetalikelihood = function(x) {
-  return (dim(x)[1])/sum(x)
+  return (dim(x)[1]/sum(x))
 }
 print(minthetalikelihood(machines))
 
@@ -49,8 +46,8 @@ print((dim(machines[1:6,])[1])/sum(machines[1:6,]))
 #from step 2. Find an optimal theta and compare your result with the previous findings.
 
 bayesianfunc = function(x, θ, λ) {
-  #Osäker om +1 eller ej!
-  return(likelihoodlog(x, θ) - log(λ) + λ*θ)
+  retur#Osäker om +1 eller ej!
+  n(likelihoodlog(x, θ) - log(λ) + λ*θ)
 } 
 
 print("Bayesianfunction:")
@@ -67,16 +64,15 @@ print(dim(machines)[1]/(sum(machines)+10))
 #Use theta value found in step 2 and generate 50 new observations from p(x|theta)=theta*exp(-theta*x)
 #(use standard random number generators). Create the histograms of the original and the new data and make conclusions.
 
-θ = minthetalikelihood(machines)
+theta = minthetalikelihood(machines)
 
 ##Creaes 5 new data points with the rate from 2.
-newdata = rexp(50, rate=θ)
+newdata = rexp(50, rate=theta)
 print(newdata)
 #Stores the old data from the Length col in the machines
 olddata <- machines$Length
 
 #Creages new window for plots
-dev.new()
-hist(olddata, col="red", xlim=c(0,5), xlab="x")
-hist(newdata, col="blue", xlim=c(0,5), add=TRUE, xlab="x")
+hist(olddata, col="red", xlim=c(0,5), ylim=c(0,20), xlab="x")
+hist(newdata, col="blue", xlim=c(0,5), ylim=c(0,20), add=TbreakRUE, s="FD", RUE, "x")
 
