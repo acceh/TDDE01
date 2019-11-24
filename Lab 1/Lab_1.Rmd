@@ -173,7 +173,7 @@ print(minthetalikelihood(machines[1:6,]))
 ```
 
 ##### What can you say about reliability of the maximum likelihood solution in each case?
-The maximum likelihood wolution for the larger dataset (the blue line) it a lot more defined and easier to see where the min-$\theta$ is. Also, the change in theta has more effect as it increases than it has on the the curve for the smaller data set(the red line).
+The maximum likelihood wolution for the larger dataset (the blue line) it a lot more defined and easier to see where the $min-\theta$ is. Also, the change in $\theta$ has more effect as it increases than it has on the the curve for the smaller data set(the red line). The $\theta$ also goes from $1.126217$ to $1.785681$.
 
 ## 4.
 *Assume now a Bayesian model with $p(x|\theta)=\theta e^{-\theta x}$ and a prior $\mathrm{p}(\theta)=\lambda e^{-\lambda \theta}$, $\lambda=10$.Write a function computing $\mathrm{l}(\theta)=log(p(x|\theta)p(\theta))$. What kind of measure is actually computed by this function? Plot the curve showing the dependence of $l(\theta)$ on theta computed using the entire data and overlay it with a plot from step 2. Find an optimal theta and compare your result with the previous findings.*
@@ -195,7 +195,7 @@ print(dim(machines)[1]/(sum(machines)+10))
 ```
 
 ##### Compare your results with the previous findings
-The same can be said again regarding the blue and red line as was said in the 4. The added green line is even more defined and the increase in theta has an even greater effect than on the red and blue line.
+The same can be said again regarding the blue and red line as was said in the 4. The added green line is even more defined and the increase in $\theta$ has an even greater effect than on the red and blue line. The value of $\theta$ is also the lowest at $0.91271907$ compared to $1.126217$ for the red line and $1.785681$ for the blue line.
 
 ## 5.
 *Use theta value found in step 2 and generate 50 new observations from $p(x|\theta)=\theta e^{-\theta x}$ (use standard random number generators). Create the histograms of the original and the new data and make conclusions.*
@@ -360,6 +360,7 @@ response=scale(tecator[,102])
 model_ridge=glmnet(as.matrix(covariates), response, alpha=0,family="gaussian")
 plot(model_ridge, xvar="lambda", label=TRUE, main="Ridge Regression\n")
 ```
+
 The coefficents all tend to zero as lambda increases.
 
 ## 6.
