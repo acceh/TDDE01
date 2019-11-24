@@ -1,0 +1,122 @@
+---
+title: "Lab 1 Group B 12"
+author: "Axel Holmberg (axeho681), Jonathan Reimertz and Wilhelm Hansson"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kknn)
+```
+
+# Assignment 1
+## 1.
+*Import the data into R and divide it into training and test sets (50%/50%)*
+```{r Task1, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+data <- read.csv2("spambase.csv")
+
+#Split data into training and test set.
+
+n=dim(data)[1]
+set.seed(12345)
+id=sample(1:n, floor(n*0.5))
+train=data[id,]
+test=data[-id,]
+```
+
+## 2.
+*Use logistic regression (functions glm(), predict()) to classify the training and test data by the classification principle $\hat{Y}=1$ if $(Y=1|X) > 0.5$, otherwise $\hat{Y}=0$ and report the confusion matrices (use table()) and the misclassification rates for training and test data. Analyse the obtained results.*
+
+```{r Task 2, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#GLM model for data with family
+#binomial --> only 0s and 1s
+model <- glm(Spam ~ ., family=binomial, data=train) 
+
+predictModel= predict(model, newdata=test, type="response") 
+
+#Split up the model into spam and 
+#not spam
+probability <- ifelse(predictModel > 0.5, "1", "0") 
+
+confMatrix <- table(probability, test[,"Spam"]) #Confusionmatrix from the model
+#Diagonal of the misclassfication rate by dividing the 
+#diagonal from the confusionmatricx with the whole confusionmatrix
+modelDiag <- diag(confMatrix) 
+missClMa1 = 1-(sum(modelDiag)/sum(confMatrix)) 
+
+#Prints results
+print("Confusion matrix 2:")
+print(confMatrix)
+print("missclassification 2:")
+print(missClMa1)
+```
+
+##### Analyse the obtained results.
+The confusion matrix gives us the misclassification rate. I would say that the misclassification rate is okay for its' aplication. It is all very dependent on the use case though.
+
+## 3.
+*Use logistic regression to classify the test data by the classification principle $\hat{Y}=1$ if $p(Y=1|X) > 0.8$, otherwise $\hat{Y}=0$ and report the confusion matrices (use table()) and the misclassification rates for training and test data. Compare the results. What effect did the new rule have?*
+
+```{r}
+#Split up the model into spam and not spam
+probability2 <- ifelse(predictModel > 0.8, "1", "0") 
+
+confMatrix2 <- table(probability2, test[,"Spam"]) 
+
+modelDiag2 <- diag(confMatrix2)
+
+missClMa2 = 1-(sum(modelDiag2)/sum(confMatrix2))
+
+
+print("Confusion matrix 3:")
+print(confMatrix2)
+print("missclassification 3:")
+print(missClMa2)
+```
+
+##### What effects did the new rule have?
+The new rule made it so that the rate is a bit worse, so it should stay at the previous value.
+
+
+## 4.
+*Use standard classifier kknn() with K=30 from package kknn, report the the misclassification rates for the training and test data and compare the results with step 2.*
+```{r}
+#KKNN with K=30
+
+kknn_K30 = kknn(Spam ~ ., train=train, test=test, k=30)
+kknn_K30_pred = predict(kknn_K30)
+
+#Split up the model into spam and not spam
+kknn_K30_pred <- ifelse(kknn_K30_pred > 0.5, 1, 0) 
+
+
+confMa_K30 = table(kknn_K30_pred, test[,"Spam"])
+misCl_K30 = 1-sum(diag(confMa_K30)/sum(confMa_K30))
+
+print("Misclassification 4:")
+print(misCl_K30)
+```
+
+##### Compare the results with step 2.
+The misclassification rate is even worse than in step 2. Probably because of the realtively small dataset, which fits a parametric method better. If one would have more data then the K-nearest neighbour could be better for this application, as that works better for non-parametric methods.
+
+## 5.
+*Repeat step 4 for $K=1$ and compare the results with step 4. What effect does the decrease of K lead to and why?*
+
+```{r}
+#KKNN with K=1
+kknn_K1 = kknn(Spam ~ ., train=train, test=test, k=1)
+kknn_K1_pred = predict(kknn_K1)
+
+#Split up the model into spam and not spam
+kknn_K1_pred <- ifelse(kknn_K1_pred > 0.5, 1, 0) 
+
+confMa_K1 = table(kknn_K1_pred, test[,"Spam"])
+misCl_K1 = 1-sum(diag(confMa_K1)/sum(confMa_K1))
+
+print("missclassification 5:")
+print(misCl_K1)
+```
+
+##### What effect does the decrease of K lead to and why?
+The decrease in K leads to a noisier prediction and is thereby worse. It can also lead to overfitting.
