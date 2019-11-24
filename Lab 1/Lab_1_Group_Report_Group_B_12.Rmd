@@ -5,7 +5,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width=5, fig.height=3, fig.align = "center")
+knitr::opts_chunk$set(echo = TRUE, fig.width=8, fig.height=5, fig.align = "center")
 library(readxl)
 library(kknn)
 library(ggplot2)
@@ -17,7 +17,7 @@ library(glmnet)
 # Assignment 1
 ## 1.
 *Import the data into R and divide it into training and test sets (50%/50%)*
-```{r Task1, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r Task1, echo=TRUE, message=FALSE, warning=FALSE}
 data <- read.csv2("spambase.csv")
 
 #Split data into training and test set.
@@ -32,7 +32,7 @@ test=data[-id,]
 ## 2.
 *Use logistic regression (functions glm(), predict()) to classify the training and test data by the classification principle $\hat{Y}=1$ if $(Y=1|X) > 0.5$, otherwise $\hat{Y}=0$ and report the confusion matrices (use table()) and the misclassification rates for training and test data. Analyse the obtained results.*
 
-```{r Task 2, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r Task 2, echo=TRUE, message=FALSE, warning=FALSE}
 #GLM model for data with family
 #binomial --> only 0s and 1s
 model <- glm(Spam ~ ., family=binomial, data=train) 
@@ -178,11 +178,9 @@ print(bayesian_function(machines_data[1],maxtheta3,10))
 # STEP 5:
 
 newdata = rexp(50, maxtheta1)
-olddata <- machines_data$ï..Length
+olddata <- machines_data$Length
 print(olddata)
-dev.new()
 hist(olddata, col="red", xlim=c(0,5), xlab="x")
-dev.new()
 hist(newdata, col="blue", xlim=c(0,5), xlab="x")
 ```
 This assignment included creating and evaluating probability models by using the log-likelihood function as well as a bayesian model to learn the expected lifetime of a certain machine. With the only input variable length.
@@ -212,8 +210,8 @@ curve(bayesian_function(machines_data[1], x, 10), from=0, to=4, col="green", add
 By generating 50 new observations by using the $\theta$-value obtained from step 2 two histograms were made; one out of the old data and one of the new/generated data - as seen below.
  
 ```{r echo=FALSE}
-hist(olddata, col="red", xlim=c(0,5), xlab="lifetime length")
-hist(newdata, col="blue", xlim=c(0,5), xlab="lifetime length")
+hist(olddata, col="red", xlim=c(0,5), ylim=c(0,20), xlab="lifetime length")
+hist(newdata, col="blue", xlim=c(0,5), ylim=c(0,20), breaks="FD", xlab="lifetime length")
 ```
  
 When comparing these we can see that the obtained $\theta$-value of step 2 is a good estimation of the machines’ expected lifetime.
