@@ -51,7 +51,7 @@ print("missclassification 2:")
 print(missClMa1)
 ```
 
-#### Analyse the obtained results.
+##### Analyse the obtained results.
 The confusion matrix gives us the misclassification rate. I would say that the misclassification rate is okay for its' aplication. It is all very dependent on the use case though.
 
 ## 3.
@@ -74,7 +74,7 @@ print("missclassification 3:")
 print(missClMa2)
 ```
 
-#### What effects did the new rule have?
+##### What effects did the new rule have?
 The new rule made it so that the rate is a bit worse, so it should stay at the previous value.
 
 
@@ -97,8 +97,8 @@ print("Misclassification 4:")
 print(misCl_K30)
 ```
 
-#### Compare the results with step 2.
-The misclassification rate is even worse than in step 2.
+##### Compare the results with step 2.
+The misclassification rate is even worse than in step 2. Probably because of the realtively small dataset, which fits a parametric method better. If one would have more data then the K-nearest neighbour could be better for this application, as that works better for non-parametric methods.
 
 ## 5.
 *Repeat step 4 for $K=1$ and compare the results with step 4. What effect does the decrease of K lead to and why?*
@@ -118,8 +118,8 @@ print("missclassification 5:")
 print(misCl_K1)
 ```
 
-#### What effect does the decrease of K lead to and why?
-The decrease in K leads to a noisier prediction and is thereby worse.
+##### What effect does the decrease of K lead to and why?
+The decrease in K leads to a noisier prediction and is thereby worse. It can also lead to overfitting.
 
 # Assignment 2
 ## 1.
@@ -150,7 +150,7 @@ curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
 #Min theta. Comes from deriving the loglikelihood-function. 
 #The more data I have the more exactly I can pinpoint the exact point of failure
 minvalue = dim(machines)/sum(machines)
-print("Min theta:")
+print("Min theta whole data set:")
 minthetalikelihood = function(x) {
   return (dim(x)[1]/sum(x))
 }
@@ -163,17 +163,17 @@ print(minthetalikelihood(machines))
 *Repeat step 2 but use only 6 first observations from the data, and put the two log-likelihood curves (from step 2 and 3) in the same plot. What can you say about reliability of the maximum likelihood solution in each case?*
 
 ```{r}
-curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
-curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="red", add=TRUE, main="ljnasd")
+curve(likelihoodlog(machines, x),xlim=c(0,4), xlab="Theta", ylab="LogLikelihood(machines, theta)", ylim=c(0,60) ,  col="red")
+curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="blue", add=TRUE)
 ```
 Where the blue line is with all the data points and the red line is with only the first six data points.
 ```{r}
-print("Min theta:")
+print("Min theta first 6 data points:")
 print(minthetalikelihood(machines[1:6,]))
 ```
 
-#### What can you say about reliability of the maximum likelihood solution in each case?
-The maximum likelihood wolution for the 
+##### What can you say about reliability of the maximum likelihood solution in each case?
+The maximum likelihood wolution for the larger dataset (the blue line) it a lot more defined and easier to see where the min-$\theta$ is. Also, the change in theta has more effect as it increases than it has on the the curve for the smaller data set(the red line).
 
 ## 4.
 *Assume now a Bayesian model with $p(x|\theta)=\theta e^{-\theta x}$ and a prior $\mathrm{p}(\theta)=\lambda e^{-\lambda \theta}$, $\lambda=10$.Write a function computing $\mathrm{l}(\theta)=log(p(x|\theta)p(\theta))$. What kind of measure is actually computed by this function? Plot the curve showing the dependence of $l(\theta)$ on theta computed using the entire data and overlay it with a plot from step 2. Find an optimal theta and compare your result with the previous findings.*
@@ -183,13 +183,10 @@ bayesianfunc = function(x, theta, lambda) {
   return(likelihoodlog(x, theta) - log(lambda) + lambda*theta)
 } 
 
-print("Bayesianfunction:")
-print(bayesianfunc(machines,1,10))
-
-curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
-curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="red", add=TRUE)
-curve(bayesianfunc(machines,x,10), xlab="theta", ylab="l(theta)", xlim=c(0,4), ylim=c(0,60),
-      col="green", add=TRUE)
+curve(likelihoodlog(machines, x),xlim=c(0,4), xlab="Theta", ylab="LogLikelihood(machines, theta)", ylim=c(0,60) ,  col="red")
+curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="blue", add=TRUE)
+curve(bayesianfunc(machines,x,10), xlab="theta", ylab="l(theta)", xlim=c(0,4), 
+      ylim=c(0,60), col="green", add=TRUE)
 
 #min theta for bayesianfunc. I get it from deriving the bayesianfunc 
 #with respect to theta and set it to = 0 to get the min.
@@ -197,8 +194,8 @@ print("Min theta bayesian func.:")
 print(dim(machines)[1]/(sum(machines)+10))
 ```
 
-#### Compare your results with the previous findings
-
+##### Compare your results with the previous findings
+The same can be said again regarding the blue and red line as was said in the 4. The added green line is even more defined and the increase in theta has an even greater effect than on the red and blue line.
 
 ## 5.
 *Use theta value found in step 2 and generate 50 new observations from $p(x|\theta)=\theta e^{-\theta x}$ (use standard random number generators). Create the histograms of the original and the new data and make conclusions.*
@@ -212,11 +209,14 @@ print(newdata)
 olddata <- machines$Length
 
 #Creages new window for plots
-hist(olddata, col="red", xlim=c(0,5), ylim=c(0,20), xlab="x", main="Histogram of the original and new data")
+hist(olddata, col="red", xlim=c(0,5), ylim=c(0,20), xlab="x", 
+     main="Histogram of the original and new data")
 hist(newdata, col="blue", xlim=c(0,5), ylim=c(0,20), add=TRUE, breaks="FD", xlab="x")
 ```
-#### Conclusions
-asd
+The red stacks are of the old data, and the blue stacks are of the new generated data.
+
+##### Conclusions
+The histogram shows that the generated data based on the chosen $\theta$ actually fits the old data quite well and the model is thereby fitting.
 
 
 # Assignment 4
@@ -254,20 +254,20 @@ fitted1 = predict(fit1, interval="confidence")
 lines(protein, fitted1[, "fit"])
 ```
 
-#### Do you think that these data are described well by a linear model?
+##### Do you think that these data are described well by a linear model?
 Yes, it can be described quite well as can be seen in the picture above. There are a few outliers though.
 
 ## 2.
 *Consider model $M_i$ in which Moisture is normally distributed, and the expected Moisture is a polynomial function of Protein including the polynomial terms up to power $i$(i.e M1 is a linear model, M2 is a quadratic model and so on). Report a probabilistic model that describes $M_i$ . Why is it appropriate to use MSE criterion when fitting this model to a training data?*
 
 
-Consider the functions are: $M_1 = w_0 + w_1*x_1 + e$, $M_2 = w_0 + w_1*x_1 + w_2*x_2^2 + e$ and so on. This means that ...
+Consider the functions are: $M_1 = w_0 + w_1*x_1 + e$, $M_2 = w_0 + w_1*x_1 + w_2*x_2^2 + e$ and so on. These functiions are probabalistic are described via regression. It is thereby appropriate to use MSE to get the error for the model.
 
 
 ## 3.
 *Divide the data into training and validation sets( 50%/50%) and fit models $M_i, i=1 ...6$. For each model, record the training and the validation MSE and present a plot showing how training and validation MSE depend on i (write some R code to make this plot). Which model is best according to the plot? How do the MSE values change and why? Interpret this picture in terms of bias-variance tradeoff.*
 
-```{r include=FALSE}
+```{r echo=TRUE}
 #Splits the data into training set and test set using only moisture and protein cols
 n=dim(tecator[,103:104])
 set.seed(12345)
@@ -285,10 +285,14 @@ m_test = test$Moisture
 #Models below for M1-M6, regression
 m1_model = lm(formula = Moisture ~ Protein, data=train)
 m2_model = lm(formula = Moisture ~ Protein + I(Protein^2), data = train)
-m3_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3), data = train)
-m4_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4), data = train)
-m5_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4) + I(Protein^5), data = train)
-m6_model = lm(formula = Moisture ~ Protein + I(Protein^2) + I(Protein^3) + I(Protein^4) + I(Protein^5) + I(Protein^6), data = train)
+m3_model = lm(formula = Moisture ~ Protein + I(Protein^2) + 
+                I(Protein^3), data = train)
+m4_model = lm(formula = Moisture ~ Protein + I(Protein^2) + 
+                I(Protein^3) + I(Protein^4), data = train)
+m5_model = lm(formula = Moisture ~ Protein + I(Protein^2) + 
+                I(Protein^3) + I(Protein^4) + I(Protein^5), data = train)
+m6_model = lm(formula = Moisture ~ Protein + I(Protein^2) + 
+                I(Protein^3) + I(Protein^4) + I(Protein^5) + I(Protein^6), data = train)
 
 #Predictions with the help of the training data
 m1_model_pred = predict(m1_model, newdata=train)
@@ -325,12 +329,13 @@ mse_test[4] <- mse(m_test, m4_model_pred_test)
 mse_test[5] <- mse(m_test, m5_model_pred_test)
 mse_test[6] <- mse(m_test, m6_model_pred_test)
 
-plot(1:6, mse_train, col="blue", type="l", xlab="i", ylab="MSE", ylim=c(23,45), main="MSE dependencie of i. Where green = test, blue= train")
+plot(1:6, mse_train, col="blue", type="l", xlab="i", ylab="MSE", 
+     ylim=c(23,45), main="MSE dependencie of i. Where green = test, blue= train")
 lines(1:6, mse_test,col="green")
 ```
 
-#### Which model is best according to the plot? How do the MSE values change and why? Interpret this picture in terms of bias-variance tradeoff.
-TODO
+##### Which model is best according to the plot? How do the MSE values change and why? Interpret this picture in terms of bias-variance tradeoff.
+The best model is when i = 3 as it has the lowest MSE for both the test data and training data. The MSE for the training data has even decreased, and the MSE for the training data is constant. For $i\geq4$ the MSE increases for the testing data due to overfitting.
 
 ## 4.
 *Perform variable selection of a linear model in which Fat is response and Channel1-Channel100 are predictors by using stepAIC. Comment on how many variables were selected.*
@@ -343,6 +348,50 @@ print("Number of selected variables:")
 print(length(steps$coefficients)-1) 
 `````
 There are 63 variables chosen from the stepAIC method.
+
+## 5.
+*Fit a Ridge regression model with the same predictor and response variables. Present a plot showing how model coefficients depend on the log of the penalty factor $\lambda$ and report how the coefficients change with $\lambda$.*
+```{r}
+#Takes the scaled tecator of Channel1-100
+covariates=scale(tecator[,2:101])
+#Scales the response-variable, which in this case is the fat
+response=scale(tecator[,102])
+#Using glmnet with alpha=0 gives the Ridge-Regression
+model_ridge=glmnet(as.matrix(covariates), response, alpha=0,family="gaussian")
+plot(model_ridge, xvar="lambda", label=TRUE, main="Ridge Regression\n")
+```
+The coefficents all tend to zero as lambda increases.
+
+## 6.
+*Repeat step 5 but fit LASSO instead of the Ridge regression and compare the plots from steps 5 and 6. Conclusions?*
+```{r}
+model_lasso = glmnet(as.matrix(covariates), response, alpha = 1, family="gaussian")
+plot(model_lasso, xvar="lambda", label=TRUE, main="Lasso Regression\n")
+```
+
+##### Conclusions
+In both the plots in step 5 and 6 the coefficients tend to zero as lambda increases. The big difference is how they get there, as can be seen in the graphs. In Ridge regression the $\lambda$ parameter minimizes the impact of the coefficients to be lower, which gives the smoother lines as it tends to zero. Although, with LASSO-regression the coefficents are instead set to absolute zero, which gives the more jagged line in the graph as it tends to zero. 
+
+
+## 7.
+*Use cross-validation to find the optimal LASSO model (make sure that case $\lambda = 0$ is also considered by the procedure) , report the optimal $\lambda$ and how many variables were chosen by the model and make conclusions. Present also a plot showing the dependence of the CV score and comment how the CV score changes with $\lambda$.*
+
+```{r}
+cv_lasso_model = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", lambda=c(model_lasso$lambda,0))
+plot(cv_lasso_model)
+print("Min lambda cv :")
+print(cv_lasso_model$lambda.min)
+```
+
+##### Answers for 7. and 8.
+
+*Report the optimal $\lambda$ and how many variables were chosen by the model and make conclusions. Compare the results from step 4 and 7.*
+
+As can be seen in the graph above the optimal $\lambda$ is $0$. This means that the optimal amount of features to keep is all 100 of them and that according to CV with Lasso that all of the variables are required to minimize the MSE. This is a lot higher compared to the 63 variables kept in step 4 in the stepAIC-method.
+
+
+
+
 
 
 

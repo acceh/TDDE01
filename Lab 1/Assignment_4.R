@@ -127,14 +127,18 @@ lines(1:6, mse_test,col="green")
 fitted_fat <- lm(tecator$Fat ~ ., data=tecator[,2:101])
 steps <- stepAIC(fitted_fat, direction="both")
 
-print(step$anovastep$anova
+step$anova
 
 print("Number of selected variables:")
 print(length(steps$coefficients)-1) 
-regression model with the same predictor and response variables. 
+#5
+#Fit a Ridge regression model with the same predictor and response variables. 
 #Present a plot showing how model coefficients depend on the log of the penalty factor lambda and report how the coefficients change with lambda.
+#Takes the scaled tecator of Channel1-100
 covariates=scale(tecator[,2:101])
+#Scales the response-variable, which in this case is the fat
 response=scale(tecator[,102])
+#Using glmnet with alpha=0 gives the Ridge-Regression
 model_ridge=glmnet(as.matrix(covariates), response, alpha=0,family="gaussian")
 plot(model_ridge, xvar="lambda", label=TRUE, main="Ridge Regression\n")
 
@@ -149,7 +153,7 @@ plot(model_lasso, xvar="lambda", label=TRUE, main="Lasso Regression\n")
 #ns. Present also a plot showing the dependence of the CV score and comment how the CV score changes with 𝜆𝜆.
 
 
-cv_lasso_model_model = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", lambda=seq(0,1,0.001))
+cv_lasso_model_model = cv.glmnet(as.(covariates), response, alpha=1, family="gaussian", lambda=seq(0,1,0.001))
 plot(cv_lasso_model)
 coef(cv_lasso_model, s="lambda.min")
 print(cv_lasso_model$lambda.min)
