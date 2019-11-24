@@ -1,12 +1,17 @@
 ---
 title: "Lab 1 Group B 12"
-author: "Axel Holmberg (axeho681), Jonathan Reimertz (jonre639) and Wilhelm Hansson"
+author: "Axel Holmberg (axeho681), Jonathan Reimertz (jonre639) and Wilhelm Hansson (wilha431)"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width=5, fig.height=3, fig.align = "center")
+library(readxl)
 library(kknn)
+library(ggplot2)
+library(Metrics)
+library(MASS)
+library(glmnet)
 ```
 
 # Assignment 1
@@ -121,6 +126,7 @@ print(misCl_K1)
 ##### What effect does the decrease of K lead to and why?
 The decrease in K leads to a noisier prediction and is thereby worse. It can also lead to overfitting.
 
+
 \newpage
 
 # Assignment 2
@@ -213,3 +219,178 @@ hist(newdata, col="blue", xlim=c(0,5), xlab="lifetime length")
 When comparing these we can see that the obtained $\theta$-value of step 2 is a good estimation of the machines’ expected lifetime.
  
 \newpage
+
+# Assignment 4. Linear regression and regularization
+1. Import data to R and create a plot of Moisture versus Protein. Do you think that these data are described well by a linear model?
+
+```{r}
+# Import of file
+tecator <- read_excel("tecator.xlsx")
+
+moisture <- tecator$Moisture
+protein <- tecator$Protein
+
+plot(protein, moisture)
+```
+**Observation:** The data seems to be described well by a linear model.
+
+2. Consider model $M_{i}$ in which Moisture is normally distributed, and the expected Moisture is a polynomial function of Protein including the polynomial terms up to power $i$ (i.e $M_{1}$ is a linear model, $M_{2}$ is a quadratic model and so on). Report a probabilistic model that describes $M_{i}$. Why is it appropriate to use $MSE$ criterion when fitting this model to a training data?
+*Answer:* The form of the models are as follows:
+$M_{1} = \beta_{0}+\beta_{1}x+\epsilon$
+$M_{2} = \beta_{0}+\beta_{1}x+\beta_{2}x^{2}+\epsilon$
+[...6]
+where $\epsilon \sim N(0,\sigma^{2})$
+The $MSE$ criterion minimizes the error in the prediction, and is therefore an appropriate model to use.
+
+```{r}
+protein_and_moisture <- tecator[,103:104]
+
+#creating model based on data
+model1 <- lm(formula = moisture ~ protein, data=protein_and_moisture)
+summary(model1)
+
+#making prediction based on model
+predicted_values <- predict(model1, interval = "confidence")
+```
+```{r, echo=FALSE}
+#make plot of measured values
+plot(protein, moisture, main="Moisture vs. Protein")
+#add line for predicted values 
+lines(protein, predicted_values[, "fit"])
+```
+
+*Graph:* Points correspond to measured values and the line is the model prediction.
+
+3. Divide the data into training and validation sets $50\% / 50\%$ and fit models $M_{i}, i = 1...6$. For each model, record the training and the validation $MSE$ and present a plot showing how training and validation $MSE$ depend on i. Which model is best according to the plot? How do the $MSE$ values change and why? Interpret this picture in terms of bias-variance tradeoff.
+
+```{r}
+set.seed(12345)
+dimension = dim(tecator)[1]
+id = sample(1:dimension, floor(dimension*0.5))
+train = tecator[id,]
+test = tecator[-id,]
+
+# create models
+M1 <- lm(formula = Moisture ~ poly(Protein,1), data=train)
+M2 <- lm(formula = Moisture ~ poly(Protein,2), data=train)
+M3 <- lm(formula = Moisture ~ poly(Protein,3), data=train)
+M4 <- lm(formula = Moisture ~ poly(Protein,4), data=train)
+M5 <- lm(formula = Moisture ~ poly(Protein,5), data=train)
+M6 <- lm(formula = Moisture ~ poly(Protein,6), data=train)
+
+#predict based on test using model
+M1.pred.test <- predict(M1,newdata=test)
+M2.pred.test <- predict(M2,newdata=test)
+M3.pred.test <- predict(M3,newdata=test)
+M4.pred.test <- predict(M4,newdata=test)
+M5.pred.test <- predict(M5,newdata=test)
+M6.pred.test <- predict(M6,newdata=test)
+
+#predict based on train using model
+M1.pred.train <- predict(M1,newdata=train)
+M2.pred.train <- predict(M2,newdata=train)
+M3.pred.train <- predict(M3,newdata=train)
+M4.pred.train <- predict(M4,newdata=train)
+M5.pred.train <- predict(M5,newdata=train)
+M6.pred.train <- predict(M6,newdata=train)
+
+# calculate MSE
+M1.pred.test.mse = mse(test$Moisture,M1.pred.test)
+M2.pred.test.mse = mse(test$Moisture,M2.pred.test)
+M3.pred.test.mse = mse(test$Moisture,M3.pred.test)
+M4.pred.test.mse = mse(test$Moisture,M4.pred.test)
+M5.pred.test.mse = mse(test$Moisture,M5.pred.test)
+M6.pred.test.mse = mse(test$Moisture,M6.pred.test)
+mse_test <- c(M1.pred.test.mse,
+              M2.pred.test.mse,
+              M3.pred.test.mse,
+              M4.pred.test.mse,
+              M5.pred.test.mse,
+              M6.pred.test.mse)
+
+M1.pred.train.mse = mse(train$Moisture,M1.pred.train)
+M2.pred.train.mse = mse(train$Moisture,M2.pred.train)
+M3.pred.train.mse = mse(train$Moisture,M3.pred.train)
+M4.pred.train.mse = mse(train$Moisture,M4.pred.train)
+M5.pred.train.mse = mse(train$Moisture,M5.pred.train)
+M6.pred.train.mse = mse(train$Moisture,M6.pred.train)
+mse_train <- c(M1.pred.train.mse,
+               M2.pred.train.mse,
+               M3.pred.train.mse,
+               M4.pred.train.mse,
+               M5.pred.train.mse,
+               M6.pred.train.mse)
+
+power_i <- c(1:6)
+results.train = data.frame(Power_i= power_i, MSE1 = mse_train)
+results.test = data.frame(Power_i= power_i, MSE2 = mse_test)
+
+results = cbind(results.train, results.test$MSE2 )
+colnames(results) = c("Power_i", "MSE1", "MSE2")
+
+ggplot(results) +
+  geom_line(aes(x = Power_i, y = MSE1, colour = "Training")) +
+  geom_line(aes(x = Power_i, y = MSE2, colour = "Testing")) +
+  labs(title="MSE vs Power (i)", y="MSE", x="Power", color = "Legend") +
+  scale_color_manual(values = c("blue", "red"))
+
+
+```
+*Answer:* As can be observed in the graph, after $i=3$ the increase in variance decreases the $MSE$ of the training set. However, a large increase in $MSE$ in the testing set is observed as a result of overfitting the model to the training set. Therefore the model $M_{3} = \beta_{0}+\beta_{1}x+\beta_{2}x^{2}+\beta_{3}x^{3}+\epsilon$ is chosen.
+
+*The entire data set is used in the following computations.*
+
+4. Perform variable selection of a linear model in which Fat is response and *Channel1-Channel100* are predictors by using stepAIC. Comment on how many variables were selected.
+
+```{r}
+fat_model <- lm(tecator$Fat ~ ., data = tecator[,2:101])
+```
+
+
+```{r stepAIC}
+fat_model_reduced <- stepAIC(fat_model, trace = FALSE, direction="both")
+```
+```{r, echo=FALSE}
+print(paste("Number of selected variables:", length(fat_model_reduced$coefficients)-1)) 
+#-1 for coefficient beta0
+```
+
+
+5. Fit a Ridge regression model with the same predictor and response variables. Present a plot showing how model coefficients depend on the log of the penalty factor $\lambda$ and report how the coefficients change with $\lambda$.
+
+```{r}
+covariates=scale(tecator[,2:101])
+response=scale(tecator[,102])
+ridge_model=glmnet(as.matrix(covariates), response, alpha=0, family="gaussian")
+plot(ridge_model, xvar="lambda", label=TRUE)
+
+```
+*Observation:* In the graph one can observe that the values of the coefficients decrease when the value of $\lambda$ increases.
+
+6. Repeat step 5 but fit LASSO instead of the Ridge regression and compare the plots from steps 5 and 6. Conclusions?
+
+```{r}
+covariates=scale(tecator[,2:101])
+response=scale(tecator[,102])
+lasso_model=glmnet(as.matrix(covariates), response, alpha=1,family="gaussian")
+plot(lasso_model, xvar="lambda", label=TRUE)
+```
+**Conclusion:** The coefficients decreases as $\lambda$ increases which is also the case in step 5 . The major different observed is how this decreas happens. The difference is due to the difference in the penelty term where ridge has $\lambda*\Sigma x^{2}$ and LASSO $\lambda*\Sigma |x|$. TThis results in Ridge making the feutures really realy close to zero but never zero where instead LASSO actually sets unwanted feutures to actual zero.
+
+7. Use cross-validation to find the optimal LASSO model, report the optimal $\lambda$ and how many variables were chosen by the model and make conclusions. Present also a plot showing the dependence of the CV score and comment how the CV score changes with $\lambda$.
+
+```{r}
+lasso_model_cv = cv.glmnet(as.matrix(covariates), 
+                           response, 
+                           alpha=1, 
+                           family="gaussian", 
+                           lambda=seq(0,1.5,0.01))
+plot(lasso_model_cv)
+#coef(lasso_model_cv, s="lambda.min")
+print(paste("Optimal lambda: ",lasso_model_cv$lambda.min))
+```
+*Comment:* A $\lambda^{*} = 0$ means that all 100 feutures where selected byt the cross validation.
+
+8. Compare the results from steps 4 and 7.
+
+**Answer:** Selected features in step 4 was 63 and in step 7 it was 100. The conclusion of this is that according to cross validation with LASSO, all features are needed to minimize the $MSE$.
