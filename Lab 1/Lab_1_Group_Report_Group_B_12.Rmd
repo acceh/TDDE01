@@ -1,11 +1,11 @@
 ---
 title: "Lab 1 Group B 12"
-author: "Axel Holmberg (axeho681), Jonathan Reimertz and Wilhelm Hansson"
+author: "Axel Holmberg (axeho681), Jonathan Reimertz (jonre639) and Wilhelm Hansson"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width=5, fig.height=3, fig.align = "center")
 library(kknn)
 ```
 
@@ -120,3 +120,96 @@ print(misCl_K1)
 
 ##### What effect does the decrease of K lead to and why?
 The decrease in K leads to a noisier prediction and is thereby worse. It can also lead to overfitting.
+
+\newpage
+
+# Assignment 2
+```{r include=FALSE}
+set.seed(12345)
+
+# STEP 1:
+machines_data<- read.csv2("machines.csv", dec=",")
+
+# STEP 2:
+
+
+log_likelihood = function(X, theta) {
+  if (typeof(X)=="list"){
+    X = unlist(X, use.names = FALSE)
+  }
+  return(length(X)*log(theta) - theta*sum(X))
+}
+
+curve(log_likelihood(machines_data, x),xlim=c(0,4), ylim=c(-80,0) , col="red")
+# According to plot maxium is between -40 and -43
+
+# Control by calculating maximum theta and inserting to function
+maxtheta1 = dim(machines_data)[1]/sum(machines_data) # From deriving the log-likelihood function
+print(maxtheta1)
+print(log_likelihood(machines_data[1],maxtheta1))
+
+# STEP 3:
+maxtheta2 = length(machines_data[1:6,])/sum(machines_data[1:6,])
+print(maxtheta2)
+curve(log_likelihood(machines_data[1:6,], x), from=0, to=4, col="blue", add = TRUE)
+
+
+
+# STEP 4:
+
+bayesian_function = function(X, theta, lambda) {
+  if (typeof(X)=="list"){
+    X = unlist(X, use.names = FALSE)
+  }
+  return(length(X)*log(theta)+log(lambda) - theta*(sum(X)+lambda))
+}
+curve(bayesian_function(machines_data[1], x, 10), from=0, to=4, col="green", add = TRUE)
+maxtheta3 = dim(machines_data)[1]/(sum(machines_data)+10) # From deriving the bayesianfunction
+print(maxtheta3)
+print(bayesian_function(machines_data[1],maxtheta3,10))
+
+
+# STEP 5:
+
+newdata = rexp(50, maxtheta1)
+olddata <- machines_data$ï..Length
+print(olddata)
+dev.new()
+hist(olddata, col="red", xlim=c(0,5), xlab="x")
+dev.new()
+hist(newdata, col="blue", xlim=c(0,5), xlab="x")
+```
+This assignment included creating and evaluating probability models by using the log-likelihood function as well as a bayesian model to learn the expected lifetime of a certain machine. With the only input variable length.
+
+## 1-3. Log-likelihood function 
+By using the log-likelihood function to find the maximum likelihood value of $\theta$, two models were created; one by using all the given data (48 observations) and one by only using 6 observations.
+```{r echo=FALSE}
+curve(log_likelihood(machines_data, x), xlab = "Theta" , ylab = "Log-likelihood" ,xlim=c(0,4), ylim=c(-80,0) , col="red", main = "Red: 48 obs. | Blue: 6 obs.")
+curve(log_likelihood(machines_data[1:6,], x), from=0, to=4, col="blue", add = TRUE)
+```
+From the first model we can see that the maximum likelihood value is 1.13 compared to 1.79 in the second model. By compairing the plots of the two models we can also see that the first model is more steep and not so stable when changing $\theta$ and the second model is more stable so the likelihood-value does not change too much depending on $\theta$.
+
+## 4. Bayesian model
+
+The used function, $l(\theta) = log(p(x|\theta) \cdot p(\theta))$, computes what could be interpreted as the log-likelihood of $p(x\cap \theta)$, as bayes theorem gives $p(x|\theta) = \frac{p(x\cap \theta)}{p(\theta)}$.
+
+By comparing this to the result of step 2 (and step 3), it shows that the resulting plot is quite similar to the plot of step 2 with the difference of giving lower values and being more steep. The maximum likelihood value of $\theta$ is somewhat lower (0.91) using the bayesian model compared to the model of step 2 (1.13).
+
+```{r echo=FALSE}
+curve(log_likelihood(machines_data, x), xlab = "Theta" , ylab = "Log-likelihood" ,xlim=c(0,4), ylim=c(-80,0) , col="red", main = "Red: 48 obs. | Blue: 6 obs. | Green: Bayesian model")
+curve(log_likelihood(machines_data[1:6,], x), from=0, to=4, col="blue", add = TRUE)
+curve(bayesian_function(machines_data[1], x, 10), from=0, to=4, col="green", add = TRUE)
+```
+
+
+## 5. Assessment of $\theta$-value from step 2
+By generating 50 new observations by using the $\theta$-value obtained from step 2 two histograms were made; one out of the old data and one of the new/generated data - as seen below.
+ 
+```{r echo=FALSE}
+hist(olddata, col="red", xlim=c(0,5), xlab="lifetime length")
+hist(newdata, col="blue", xlim=c(0,5), xlab="lifetime length")
+```
+ 
+When comparing these we can see that the obtained $\theta$-value of step 2 is a good estimation of the machines’ expected lifetime.
+ 
+\newpage
