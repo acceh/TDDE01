@@ -1,0 +1,70 @@
+---
+title: "Lab 2"
+author: "Axel Holmberg (axeho681)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(MASS)
+library(ggplot2)
+australian_crabs <- read.csv("australian-crabs.csv")
+set.seed(12345)
+```
+
+# Assignment 1
+
+## 1
+
+*Use australian-crabs.csv and make a scatterplot of carapace length (CL) versus rear width (RW) where observations are colored by Sex. Do you think that this data is easy to classify by linear discriminant analysis? Motivate your answer.*
+
+The scatterplot ends up looking like the figure below:
+
+```{r 1}
+#Plots matrix in different colors in regards to gender
+plot_crabs <- ggplot(australian_crabs, aes(x=CL, y=RW, color=australian_crabs$sex)) + geom_point()
+plot_crabs
+
+```
+
+As can be seen in the picture there is a clear distinction between the red and blue dots in the scatterplot. This characteristic shows that it is easy to classify the data by linear classification analysis. One can almost imagine a line between the two colors.
+
+## 2
+*Make LDA analysis with target Sex and features CL and RW and proportional prior by using lda() function in package MASS. Make a scatter plot of CL versus RW colored by the predicted Sex and compare it with the plot in step 1. Compute the misclassification error and comment on the quality of fit.*
+
+```{r}
+#LDA-model with target sex and features CL and RW. Gives proportional prior
+lda_crabs <- lda(sex~RW+CL, data=australian_crabs)
+#Predicts the LDA-model
+lda_crabs.predicted = predict(lda_crabs)
+
+#Scatterplots the lda-model in different colors in regard to sex
+plot_crabs_lda <- ggplot(australian_crabs, aes(x=CL, y=RW, color=lda_crabs.predicted$class)) + geom_point()
+plot_crabs_lda
+
+```
+
+The plot that one gets from the LDA-model almost looks the exact same as the previous one. This is due to that it uses the same data-points, but the gender is changed. There are just a small amount of data-points that "changed gender" compared to the previous figure. This can also be seen in the confusionmatrix below.
+
+```{r}
+confusionmatrix.lda <- table(lda_crabs.predicted$class, australian_crabs$sex)
+print(confusionmatrix.lda)
+```
+
+The confusionmatrix above shows that the model is quite accurate with its' predictions of the gender.
+
+```{r}
+missclassification.lda <- 1-(sum(diag(confusionmatrix.lda))/sum(confusionmatrix.lda))
+print(missclassification.lda)
+```
+
+Also, the misslcassification error at 3.5% is really good.
+
+
+
+
+
+
+
+
+
