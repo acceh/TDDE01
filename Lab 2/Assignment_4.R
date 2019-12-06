@@ -40,7 +40,6 @@ ICA <- fastICA(data1, n.comp = 2, alg.typ = "parallel", fun = "logcosh", alpha =
 
 WTICK <- ICA$K %*% ICA$W
 
-
 # Trace plot results from ICAs
 plot(WTICK[,1], main= "Latent feature 1")
 plot(WTICK[,2], main= "Latent feature 2")
