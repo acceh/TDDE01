@@ -6,6 +6,7 @@ author: "By Axel Holmberg (axeho681)"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+setwd("~/Programming/TDDE01/Lab 1")
 library(kknn)
 ```
 
@@ -28,38 +29,59 @@ test=data[-id,]
 *Use logistic regression (functions glm(), predict()) to classify the training and test data by the classification principle $\hat{Y}=1$ if $(Y=1|X) > 0.5$, otherwise $\hat{Y}=0$ and report the confusion matrices (use table()) and the misclassification rates for training and test data. Analyse the obtained results.*
 
 ```{r Task 2, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
-#GLM model for data with family
-#binomial --> only 0s and 1s
-model <- glm(Spam ~ ., family=binomial, data=train) 
+model <- glm(Spam ~ ., family=binomial, data=train)
+#GLM model for data with family binomial 
+#--> only 0s and 1s
 
 predictModel= predict(model, newdata=test, type="response") 
 
-#Split up the model into spam and 
-#not spam
 probability <- ifelse(predictModel > 0.5, "1", "0") 
+#Split up the model into spam and not spam
 
 confMatrix <- table(probability, test[,"Spam"]) #Confusionmatrix from the model
-#Diagonal of the misclassfication rate by dividing the 
-#diagonal from the confusionmatricx with the whole confusionmatrix
-modelDiag <- diag(confMatrix) 
+
+modelDiag <- diag(confMatrix) #Diagonal of the 
+
 missClMa1 = 1-(sum(modelDiag)/sum(confMatrix)) 
+#Missclassfication rate by dividing the diagonal 
+#from the confusionmatricx with the whole confusionmatrix
+
+#Same but for training data
+predictModel_train = predict(model, newdata=train, type="response") 
+
+probability_train <- ifelse(predictModel_train > 0.5, "1", "0") 
+#Split up the model into spam and not spam
+
+confMatrix_train <- table(probability_train, train[,"Spam"]) 
+#Confusionmatrix from the model
+
+modelDiag_train <- diag(confMatrix_train) #Diagonal of the 
+
+missClMa1_train = 1-(sum(modelDiag_train)/sum(confMatrix_train)) 
+#Missclassfication rate 
+#by dividing the diagonal from the confusionmatricx with the whole confusionmatrix
 
 #Prints results
-print("Confusion matrix 2:")
+print("Confusion matrix 2 test:")
 print(confMatrix)
-print("missclassification 2:")
+print("missclassification 2 test:")
 print(missClMa1)
+
+print("Confusion matrix 2 train:")
+print(confMatrix_train)
+print("missclassification 2 train:")
+print(missClMa1_train)
 ```
 
 ##### Analyse the obtained results.
-The confusion matrix gives us the misclassification rate. I would say that the misclassification rate is okay for its' aplication. It is all very dependent on the use case though.
+The confusion matrix gives us the misclassification rate. I would say that the misclassification rate is okay for its' aplication. It is all very dependent on the use case though. Also, the missclasification rate for the training and test is almost the same, which is really good.
 
 ## 3.
 *Use logistic regression to classify the test data by the classification principle $\hat{Y}=1$ if $p(Y=1|X) > 0.8$, otherwise $\hat{Y}=0$ and report the confusion matrices (use table()) and the misclassification rates for training and test data. Compare the results. What effect did the new rule have?*
 
 ```{r}
 #Split up the model into spam and not spam
-probability2 <- ifelse(predictModel > 0.8, "1", "0") 
+probability2 <- ifelse(predictModel > 0.8, "1", "0") #Split up the model into spam and not spam
 
 confMatrix2 <- table(probability2, test[,"Spam"]) 
 
@@ -67,15 +89,29 @@ modelDiag2 <- diag(confMatrix2)
 
 missClMa2 = 1-(sum(modelDiag2)/sum(confMatrix2))
 
+#Same but with training data
+probability2_train <- ifelse(predictModel_train > 0.8, "1", "0") #Split up the model 
+#into spam and not spam
+confMatrix2_train <- table(probability2_train, train[,"Spam"]) #Confusionmatrix from the model
+modelDiag2_train <- diag(confMatrix2_train) #Diagonal of the 
+
+missClMa2_train = 1-(sum(modelDiag2_train)/sum(confMatrix2_train)) #Missclassfication 
+#rate by dividing the diagonal from the confusionmatricx with the whole confusionmatrix
+
 
 print("Confusion matrix 3:")
 print(confMatrix2)
 print("missclassification 3:")
 print(missClMa2)
+
+print("Confusion matrix 3 train:")
+print(confMatrix2_train)
+print("missclassification 3 train:")
+print(missClMa2_train)
 ```
 
 ##### What effects did the new rule have?
-The new rule made it so that the rate is a bit worse, so it should stay at the previous value.
+The new rule made it so that the rate is a bit worse, so it should stay at the previous value. Regarding the difference in training and test data missclassification it is a bit worse than before as well as there is a larger difference between the two, which indicates some form of overfitting.
 
 
 ## 4.
@@ -86,19 +122,31 @@ The new rule made it so that the rate is a bit worse, so it should stay at the p
 kknn_K30 = kknn(Spam ~ ., train=train, test=test, k=30)
 kknn_K30_pred = predict(kknn_K30)
 
-#Split up the model into spam and not spam
 kknn_K30_pred <- ifelse(kknn_K30_pred > 0.5, 1, 0) 
+#Split up the model into spam and not spam
 
 
 confMa_K30 = table(kknn_K30_pred, test[,"Spam"])
 misCl_K30 = 1-sum(diag(confMa_K30)/sum(confMa_K30))
 
-print("Misclassification 4:")
+#Training data
+kknn_K30_train = kknn(Spam ~ ., train=train, test=train, k=30)
+kknn_K30_pred_train = predict(kknn_K30_train)
+kknn_K30_pred_train <- ifelse(kknn_K30_pred_train > 0.5, 1, 0) 
+#Split up the model into spam and not spam
+
+confMa_K30_train = table(kknn_K30_pred_train, train[,"Spam"])
+misCl_K30_train = 1-sum(diag(confMa_K30_train)/sum(confMa_K30_train))
+
+print("Missclassification 4 testing:")
 print(misCl_K30)
+
+print("Missclassification 4 training:")
+print(misCl_K30_train)
 ```
 
 ##### Compare the results with step 2.
-The misclassification rate is even worse than in step 2. Probably because of the realtively small dataset, which fits a parametric method better. If one would have more data then the K-nearest neighbour could be better for this application, as that works better for non-parametric methods.
+The misclassification rate is even worse than in step 2. Probably because of the realtively small dataset, which fits a parametric method better. If one would have more data then the K-nearest neighbour could be better for this application, as that works better for non-parametric methods. This also shows when comparing the test data and training data missclassification rates.
 
 ## 5.
 *Repeat step 4 for $K=1$ and compare the results with step 4. What effect does the decrease of K lead to and why?*
@@ -107,19 +155,26 @@ The misclassification rate is even worse than in step 2. Probably because of the
 #KKNN with K=1
 kknn_K1 = kknn(Spam ~ ., train=train, test=test, k=1)
 kknn_K1_pred = predict(kknn_K1)
-
-#Split up the model into spam and not spam
-kknn_K1_pred <- ifelse(kknn_K1_pred > 0.5, 1, 0) 
-
+kknn_K1_pred <- ifelse(kknn_K1_pred > 0.5, 1, 0) #Split up the model into spam and not spam
 confMa_K1 = table(kknn_K1_pred, test[,"Spam"])
 misCl_K1 = 1-sum(diag(confMa_K1)/sum(confMa_K1))
 
-print("missclassification 5:")
+#Training data
+kknn_K1_train = kknn(Spam ~ ., train=train, test=train, k=1)
+kknn_K1_pred_train = predict(kknn_K1_train)
+kknn_K1_pred_train <- ifelse(kknn_K1_pred_train > 0.5, 1, 0) #Split up the model into spam and not spam
+confMa_K1_train = table(kknn_K1_pred_train, train[,"Spam"])
+misCl_K1_train = 1-sum(diag(confMa_K1_train)/sum(confMa_K1_train))
+
+print("Missclassification 5 testing:")
 print(misCl_K1)
+
+print("Missclassification 5 training:")
+print(misCl_K1_train)
 ```
 
 ##### What effect does the decrease of K lead to and why?
-The decrease in K leads to a noisier prediction and is thereby worse. It can also lead to overfitting.
+The decrease in K leads to a noisier prediction and is thereby worse. It can also lead to overfitting. For the training data it is a perfect fit with the training data as there is a lot of overfitting with k=1.
 
 # Assignment 2
 ## 1.
@@ -145,7 +200,8 @@ likelihoodlog = function(x, theta) {
 print(likelihoodlog(machines[1], 1))
 
 #Plot curve
-curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
+curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue", 
+      ylab="-log(likelihood(machines,theta))")
 
 #Min theta. Comes from deriving the loglikelihood-function. 
 #The more data I have the more exactly I can pinpoint the exact point of failure
@@ -163,7 +219,7 @@ print(minthetalikelihood(machines))
 *Repeat step 2 but use only 6 first observations from the data, and put the two log-likelihood curves (from step 2 and 3) in the same plot. What can you say about reliability of the maximum likelihood solution in each case?*
 
 ```{r}
-curve(likelihoodlog(machines, x),xlim=c(0,4), xlab="Theta", ylab="LogLikelihood(machines, theta)", ylim=c(0,60) ,  col="red")
+curve(likelihoodlog(machines, x),xlim=c(0,4), xlab="Theta", ylim=c(0,60) ,  col="red" , ylab="-log(likelihood(machines,theta))")
 curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="blue", add=TRUE)
 ```
 Where the blue line is with all the data points and the red line is with only the first six data points.
@@ -183,7 +239,7 @@ bayesianfunc = function(x, theta, lambda) {
   return(likelihoodlog(x, theta) - log(lambda) + lambda*theta)
 } 
 
-curve(likelihoodlog(machines, x),xlim=c(0,4), xlab="Theta", ylab="LogLikelihood(machines, theta)", ylim=c(0,60) ,  col="red")
+curve(likelihoodlog(machines, x),xlim=c(0,4), xlab="Theta",ylab="-log(likelihood(machines,theta))", ylim=c(0,60) ,  col="red")
 curve(likelihoodlog(machines[1:6,],x),xlim=c(0,4), ylim=c(0,60) , col="blue", add=TRUE)
 curve(bayesianfunc(machines,x,10), xlab="theta", ylab="l(theta)", xlim=c(0,4), 
       ylim=c(0,60), col="green", add=TRUE)

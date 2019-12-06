@@ -60,7 +60,7 @@ glm_crabs = glm(sex~RW+CL, family=binomial, data=australian_crabs)
 glm_crabs.predicted = predict(glm_crabs, type="response")
 print(glm_crabs.predicted)
 #Split data into Male and Female depending on the predicted value
-glm_crabs.predicted <- ifelse(glm_crabs.predicted > 0,5, "Male", "Female") #Split up the model into spam and not spam
+glm_crabs.predicted <- ifelse(glm_crabs.predicted > 0.5, "Male", "Female") #Split up the model into spam and not spam
 print(glm_crabs.predicted)
 
 plot_glm_crabs <- ggplot(australian_crabs, aes(x=CL, y=RW, color=glm_crabs.predicted)) + geom_point()
@@ -73,12 +73,11 @@ missclassification.glm <- 1-(sum(diag(confusionmatrix.glm))/sum(confusionmatrix.
 print(missclassification.glm)
 
 
-
-plot_glm_line <- plot_glm_crabs + stat_function(fun=function(x){(-glm_crabs[["coefficients"]][["(Intercept)"]]-glm_crabs[["coefficients"]][["CL"]]*x)/(glm_crabs[["coefficients"]][["RW"]]) }, xlim=c(5,50))
+#Add not about the 0.5 times the RW
+plot_glm_line <- plot_glm_crabs + stat_function(fun=function(x){(glm_crabs[["coefficients"]][["(Intercept)"]]
+                                                  +glm_crabs[["coefficients"]][["CL"]]*x)/(-glm_crabs[["coefficients"]][["RW"]]) }, 
+                                                xlim=c(5,50))
 plot_glm_line
 
-
-glm_plot <- ggplot(australian_crabs, aes(x=CL, y=RW)) + geom_point()
-glm_plot
 
 

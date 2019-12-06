@@ -5,19 +5,20 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(
+	echo = FALSE,
+	fig.align = "center",
+	warning = FALSE
+)
 library(MASS)
 library(ggplot2)
 australian_crabs <- read.csv("australian-crabs.csv")
-set.seed(12345)
+set.seed(12345, sample.kind="Rounding")
 ```
 
 # Assignment 1
 
-## 1
-
-*Use australian-crabs.csv and make a scatterplot of carapace length (CL) versus rear width (RW) where observations are colored by Sex. Do you think that this data is easy to classify by linear discriminant analysis? Motivate your answer.*
-
+## Step 1 - Scatterplot CW vs RW
 The scatterplot ends up looking like the figure below:
 
 ```{r 1}
@@ -29,8 +30,7 @@ plot_crabs
 
 As can be seen in the picture there is a clear distinction between the red and blue dots in the scatterplot. This characteristic shows that it is easy to classify the data by linear classification analysis. One can almost imagine a line between the two colors.
 
-## 2
-*Make LDA analysis with target Sex and features CL and RW and proportional prior by using lda() function in package MASS. Make a scatter plot of CL versus RW colored by the predicted Sex and compare it with the plot in step 1. Compute the misclassification error and comment on the quality of fit.*
+## Step 2 - LDA
 
 ```{r}
 #LDA-model with target sex and features CL and RW. Gives proportional prior
@@ -46,19 +46,371 @@ plot_crabs_lda
 
 The plot that one gets from the LDA-model almost looks the exact same as the previous one. This is due to that it uses the same data-points, but the gender is changed. There are just a small amount of data-points that "changed gender" compared to the previous figure. This can also be seen in the confusionmatrix below.
 
+
 ```{r}
 confusionmatrix.lda <- table(lda_crabs.predicted$class, australian_crabs$sex)
-print(confusionmatrix.lda)
+knitr::kable(confusionmatrix.lda, format = 'latex')
 ```
+
 
 The confusionmatrix above shows that the model is quite accurate with its' predictions of the gender.
 
 ```{r}
 missclassification.lda <- 1-(sum(diag(confusionmatrix.lda))/sum(confusionmatrix.lda))
-print(missclassification.lda)
+
 ```
 
-Also, the misslcassification error at 3.5% is really good.
+Also, the misslcassification error at `r missclassification.lda` is really good.
+
+## Step 3 - Set the priors to 0.1 for female and 0.9 for male
+
+Changing the prior gave me the following plot:
+
+```{r}
+#Sets the priors to 0.1=female and 0.9=male
+lda_crabs_prior.predicted = predict(lda_crabs, prior=c(0.1,0.9))
+#Plots like #2
+plot_crabs_lda_prior <- ggplot(australian_crabs, aes(x=CL, y=RW, color=lda_crabs_prior.predicted$class)) + geom_point()
+plot_crabs_lda_prior
+
+```
+
+The differences in the plots can mainly be seen for low values of CL, but the higher values stay the same. The reason for this is that we changed the prior pobabilities for the prediction to be more male than  female, which seem to affect the lower values more than the higher values.
+
+```{r include=FALSE}
+
+confusionmatrix_prior.lda <- table(lda_crabs_prior.predicted$class, australian_crabs$sex)
+
+missclassification_prior.lda <- 1-(sum(diag(confusionmatrix_prior.lda))/sum(confusionmatrix_prior.lda))
+```
+
+The missclassification rate reached `r missclassification_prior.lda`, which is a lot higher than the previous value at 3.5%. The reason for this is that the priors doesnt match the actual prior, which is 0.5 for female and male respectively. This makes the prediction mroe biased towards male crabs that it should be.
+
+## Step 4 - Logistic regression
+
+The model used below is done with logistic regression.
+
+```{r}
+#Gives the GLM for the target sex with features RW and CL
+glm_crabs = glm(sex~RW+CL, family=binomial, data=australian_crabs)
+glm_crabs.predicted = predict(glm_crabs, type="response")
+#Split data into Male and Female depending on the predicted value
+glm_crabs.predicted <- ifelse(glm_crabs.predicted > 0.5, "Male", "Female") #Split up the model into spam and not spam
+
+plot_glm_crabs <- ggplot(australian_crabs, aes(x=CL, y=RW, color=glm_crabs.predicted)) + geom_point()
+plot_glm_crabs
+```
+
+The plot above shows the plot for the model done with logistic regression.
+
+```{r include=FALSE}
+confusionmatrix.glm <- table(glm_crabs.predicted, australian_crabs$sex)
+
+missclassification.glm <- 1-(sum(diag(confusionmatrix.glm))/sum(confusionmatrix.glm))
+
+```
+
+The missclassication rate for the logistic regression model is the exact same as for the lda model at `r missclassification.glm`
+
+```{r}
+#Add not about the 0.5 times the RW
+plot_glm_line <- plot_glm_crabs + stat_function(fun=function(x){(glm_crabs[["coefficients"]][["(Intercept)"]]
+                                                  +glm_crabs[["coefficients"]][["CL"]]*x)/(-glm_crabs[["coefficients"]][["RW"]]) }, 
+                                                xlim=c(5,50))
+plot_glm_line
+
+```
+
+Above is the plot with decision boundry for the classified data. The decision boundry comes from the values in the glm-function and has the following equation: $y=(Intercept+CL*x)/(-RW)$
+
+
+# Assignment 2
+
+```{r}
+setwd("~/Programming/TDDE01/Lab 2")
+library(tree)
+library(readxl)
+library(MASS)
+library(e1071)
+
+data <- read_excel("creditscoring.xls")
+set.seed(12345, sample.kind="Rounding")
+
+#Splits data into training, validation and test
+n=dim(data)[1]
+id=sample(1:n, floor(n*0.5))
+train=data[id,]
+id1=setdiff(1:n, id)
+set.seed(12345, sample.kind="Rounding")
+id2=sample(id1, floor(n*0.25))
+valid=data[id2,]
+id3=setdiff(id1,id2)
+test=data[id3,]
+```
+
+
+## Step 1 - Import the data
+
+The data is imported and divided into $train=50\%, validation=25\%, test=25\%$.
+
+## Step 2 - Tree for deviance and gini
+
+```{r include=FALSE}
+#Train and test for deviance
+fit.train.dev <- tree(ifelse(good_bad == "good", 1, 0) ~ . , data=train, split="deviance")
+
+#Train and test for gini
+fit.train.gini <- tree(ifelse(good_bad == "good", 1, 0)  ~ . , data=train, split="gini")
+
+#Predictions
+fit_pred.train.dev <- predict(fit.train.dev, newdata=train)
+
+fit_pred.train.gini <- predict(fit.train.gini, newdata=train)
+
+fit_pred.test.dev <- predict(fit.train.dev, newdata=test)
+
+fit_pred.test.gini <- predict(fit.train.gini, newdata=test)
+
+#Conf matrix
+confMa.train.dev <- table(train$good_bad,(ifelse(fit_pred.train.dev > 0.5, "good", "bad")))
+confMa.test.dev <- table(test$good_bad,(ifelse(fit_pred.test.dev > 0.5, "good", "bad")))
+confMa.train.gini <- table(train$good_bad,(ifelse(fit_pred.train.gini > 0.5, "good", "bad")))
+confMa.test.gini <- table(test$good_bad,(ifelse(fit_pred.test.gini > 0.5, "good", "bad")))
+
+#Misclassification rates
+misCl.train.dev <- 1-(sum(diag(confMa.train.dev))/sum(confMa.train.dev))
+misCl.test.dev <- 1-(sum(diag(confMa.test.dev))/sum(confMa.test.dev))
+misCl.train.gini <- 1-(sum(diag(confMa.train.gini))/sum(confMa.train.gini))
+misCl.test.gini <- 1-(sum(diag(confMa.test.gini))/sum(confMa.test.gini))
+
+#Prints the miscl. rates
+misCl.train.dev
+misCl.test.dev
+misCl.train.gini
+misCl.test.gini
+```
+
+The missclassifiaction rates are `r misCl.train.dev` for deviance and `r misCl.train.gini` for gini with training data and `r misCl.test.dev` for deviance and `r misCl.test.gini` for gini with test data.
+
+## Step 3 - Optimal tree
+
+
+
+```{r}
+trainScore=rep(0,9)
+validationScore=rep(0,9)
+
+for (i in 2:9) {
+  set.seed(12345, sample.kind="Rounding")
+
+  prunedTree <- prune.tree(fit.train.dev, best=i)
+  prediction <- predict(prunedTree, newdata = valid, type = "tree") # Predict with the pruned tree and val set
+  trainScore[i] <- deviance(prunedTree) # Calculate deviance of test set
+  validationScore[i] <- deviance(prediction) # Calculate deviance of val set
+}
+
+plot(2:9, trainScore[2:9], type="b", col="green", ylim=c(40,100), ylab="Deviance", xlab="No. of leaves")
+points(2:9, validationScore[2:9], type="b", col="blue", ylim=c(40,100))
+legend("top", legend=c("Training score (green)", "Validation score (blue)"))
+```
+
+The graph above shows the deviance for the training score and the validation score. As one can see the optimal number of leaves would be 5 or 6 as they are at the same value. 
+
+
+```{r include=FALSE}
+#Optimal number of leaves
+match(min(validationScore[2:9]),validationScore)
+optPrunedTree <- prune.tree(fit.train.dev, best=match(min(validationScore[2:9]),validationScore))
+plot(optPrunedTree, sub="asd")
+text(optPrunedTree, pretty=0)
+title("Pruned tree with 6 leaves")
+
+```
+
+![](Tree.png) 
+
+
+
+```{r}
+
+#Estimates classification 
+predict.tree <- predict(optPrunedTree, newdata = test)
+confMa.prune <- table(ifelse(predict.tree>0.5, "good", "bad"), test$good_bad)
+testMisClass <- 1-sum(diag(confMa.prune)/sum(confMa.prune))
+
+```
+
+In the tree above best is set to 5, but it chooses the next best tree if that doesn't work, which is with 6 leaves. Tee value for 6 is the same as 5 so that should work just as well. The missclassification rate of the tree is `r testMisClass`.
+
+
+## Step 4 - Naive Bayes
+
+The next model is done using Naive Bayes.
+
+The confusion matrix for the training data:
+
+```{r}
+naive.model = naiveBayes(good_bad ~ ., data=train)
+naive.model$levels<-c('bad', 'good')
+
+#Sets training data for naive
+naive.train = predict(naive.model, newdata=train)
+confMa.naive.train = table(naive.train, train$good_bad)
+misCl.naive.train = 1-(sum(diag(confMa.naive.train))/sum(confMa.naive.train))
+knitr::kable(confMa.naive.train, format = 'latex')
+
+```
+
+The missclassification rate for the training data is `r misCl.naive.train`.
+
+The confusion matrix for the test data:
+
+``` {r}
+#Sets test for naive
+naive.test = predict(naive.model, newdata=test)
+confMa.naive.test = table(naive.test, test$good_bad)
+misCl.naive.test = 1-(sum(diag(confMa.naive.test))/sum(confMa.naive.test))
+knitr::kable(confMa.naive.test, format = 'latex')
+
+```
+
+Also, the missclassification rate for the test data is `r misCl.naive.test`.
+
+As we only acquired the test data from step 3 this is the only data we have to compare to. What can be seen is that the missclassification rate is a bit worse that for the tree in step 3.
+
+## Step 5 - ROC
+
+```{r}
+pi = seq(0.05, 0.95, by=0.05)
+tree.model.dataframe = data.frame("0.05" = c(rep(0,250)))
+tree.model.tpr = c(rep(0,length(pi)))
+tree.model.fpr = c(rep(0,length(pi)))
+
+for(k in 1:length(pi)) {
+  tree.model.dataframe[, k] = ifelse(predict.tree > pi[k], 1, 0)
+  confMa.tmp = table(ifelse(test$good_bad == 'good', 1, 0), tree.model.dataframe[, k])
+  if (dim(confMa.tmp)[2] == 1) {
+    if (colnames(confMa.tmp) == "1") {
+      confMa.tmp <- cbind(as.matrix(c(0, 0)), confMa.tmp)
+    } else {
+      confMa.tmp <- cbind(confMa.tmp, as.matrix(c(0, 0)))
+    }
+  }
+  
+  tree.model.tpr[k] = confMa.tmp[2, 2] / (confMa.tmp[2, 1] + confMa.tmp[2, 2])
+  tree.model.fpr[k] = confMa.tmp[1, 2] / (confMa.tmp[1, 1] + confMa.tmp[1, 2])
+  
+}
+plot(x = tree.model.fpr, y = tree.model.tpr, type = "l", 
+     col="green", main="ROC Curve", sub="Green = tree, Blue = naive", xlab="FPR", ylab="TPR")
+
+
+set.seed(12345)
+#ROC for naive
+naive.test.raw = predict(naive.model, newdata = test, type="raw")
+
+naive.model.dataframe = data.frame("0.05" = c(rep(0,250)))
+naive.model.tpr = c(rep(0,length(pi)))
+naive.model.fpr = c(rep(0,length(pi)))
+
+
+for (k in 1:length(pi)) {
+  naive.model.dataframe[, k] = ifelse(naive.test.raw[, 2] > pi[k], 1, 0)
+  confMa.tmp = table(ifelse(test$good_bad == 'good', 1, 0), naive.model.dataframe[, k])
+  
+  if (dim(confMa.tmp)[2] == 1) {
+    if (colnames(confMa.tmp) == "1") {
+      confMa.tmp <- cbind(as.matrix(c(0, 0)), confMa.tmp)
+    } else {
+      confMa.tmp <- cbind(confMa.tmp, as.matrix(c(0, 0)))
+    }
+  }
+  
+  naive.model.tpr[k] = confMa.tmp[2, 2] / (confMa.tmp[2, 1] + confMa.tmp[2, 2])
+  naive.model.fpr[k] = confMa.tmp[1, 2] / (confMa.tmp[1, 1] + confMa.tmp[1, 2])
+  
+}
+lines(x = naive.model.fpr, y = naive.model.tpr, col="blue")
+```
+
+In the graph above one can see the ROC curves for the tree-model and for the Naive Bayes-model. They differ in the AUC and the Naive Model has a larger AUC compared to the tree-model. What this means is that the best classifier is the Naive Bayes model as it has the greatest AUC.
+
+
+## Step 6 - Loss matrix with Naive Bayes
+
+```{r}
+naive.train.raw = predict(naive.model, newdata = train, type="raw")
+
+#1*p(bad|x) > 10*p(good|x) -> bad, L12=1, L21=10, L12/L21=10
+confMa.train.naive.loss = table(train$good_bad, ifelse(naive.train.raw[,1]/naive.train.raw[,2] > 10, "bad", "good"))
+misCl.train.naive.loss <- 1-(sum(diag(confMa.train.naive.loss))/sum(confMa.train.naive.loss))
+
+confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 10, "bad", "good"))
+
+misCl.test.naive.loss <- 1-(sum(diag(confMa.test.naive.loss))/sum(confMa.test.naive.loss))
+
+```
+
+The table for the confusion matrix of the training data for the Naive Bayes model model: 
+
+```{r}
+knitr::kable(confMa.train.naive.loss, format = 'latex')
+
+```
+
+The training data also has the missclassification rate of `r misCl.train.naive.loss`.
+
+The table for the confusion matrix of the test data for the Naive Bayes model model: 
+
+```{r}
+knitr::kable(confMa.test.naive.loss, format = 'latex')
+
+```
+
+The test data also has the missclassification rate of `r misCl.test.naive.loss`.
+
+Firstly, what can be seen is that the missclassification rate with the loss matrix are lower than without it. The reason for this is that the loss matrix helps the model learn what is more "costly" to the function and what isn't.
+
+
+# Assignment 4
+
+## Step 1 - PCA
+
+```{r}
+setwd("~/Programming/TDDE01/Lab 2")
+library(fastICA)
+
+
+data <- read.csv2("NIRSpectra.csv")
+
+
+data1 <- data
+
+
+#1
+data1$Viscosity = c()
+
+res = prcomp(data1)
+
+lambda = res$sdev^2
+
+#sprintf("%2.3f", (lambda)/sum(lambda)*100)
+
+#Histogram of variance
+screeplot(res)
+
+plot(res$x[,1], res$x[,2], main = "PC1 vs. PC2", xlab = "PC1", ylab = "PC2")
+
+```
+
+
+
+
+
+
+
+
+
 
 
 

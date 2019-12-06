@@ -1,4 +1,6 @@
 library(readxl)
+setwd("~/Programming/TDDE01/Lab 1")
+
 
 set.seed(12345)
 
@@ -74,5 +76,5 @@ olddata <- machines$Length
 
 #Creages new window for plots
 hist(olddata, col="red", xlim=c(0,5), ylim=c(0,20), xlab="x")
-hist(newdata, col="blue", xlim=c(0,5), ylim=c(0,20), add=TbreakRUE, s="FD", RUE, "x")
+hist(newdata, col="blue", xlim=c(0,5), ylim=c(0,20), add=TRUE, breaks="FD")
 
