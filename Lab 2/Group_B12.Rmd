@@ -1,5 +1,5 @@
 ---
-title: "Group B 12"
+title: "Lab 2 - Group B 12"
 author: Axel Holmberg (axeho681), Jonathan Reimertz (jonre639) and Wilhelm Hansson
   (wilha431)
 output: pdf_document
@@ -148,6 +148,9 @@ colnames(dft) <- c("type","prior","missclassification rate")
 kable(dft, format = "latex")
 ```
 As one can observe LDA and GLM give the same error rate when proportional priors are used.
+
+
+\newpage
 
 # Assignment 2
 
@@ -391,11 +394,55 @@ The test data also has the missclassification rate of `r misCl.test.naive.loss`.
 
 Firstly, what can be seen is that the missclassification rate with the loss is higher than without it. The reason for this is that the loss matrix makes it so that it is a lot worse to give loan to a "bad" customer than to not give a "good" customer. Secondly, one can also see that clearly in the loss matrix with the lowest value being giving a loan to a bad customer.
 
+
 \newpage
 
-# Appendixes for code
+# Assignment 4
+```{r, code=readLines("Ass 4.R"), include=FALSE}
+```
+This assignment included two types of analysis, principal component analysis (PCA) and independent component analysis (ICA), of measured spectra for different diesel fuels to predict the viscosity level of the fuel.
 
-## Appendix 1 - Assignment 1
+## Step 1 - Principal Component Analysis
+
+```{r echo=FALSE}
+screeplot(pca.spectra, main = "Screeplot of PCA")
+```
+By the plot it could interpreted to only need to extract two principal components. The minimal number of components for explaining 99 % of the total variance - PC1 and PC2 explains 99.6%.
+
+```{r echo=FALSE}
+plot(pca.spectra$x[,1], pca.spectra$x[,2],main = "PCA plot", xlab="PC1", ylab="PC2")
+```
+According to this plot there are 2 "unique" diesel fuels and a group of 5 dieselfuels which differ from the majority by PC1.
+
+## Step 2 - Trace plot of PC1 and PC2
+```{r echo=FALSE}
+plot(pca.spectra_rot[,1], main="Traceplot - PC1", ylab = "Rotation of PC1")
+plot(pca.spectra_rot[,2], main="Traceplot - PC2", ylab = "Rotation of PC2")
+```
+By the looks of the trace plots, PC2 is mainly explained by the last 10 spectra. PC1 is explained by the first 50 %.
+
+## Step 3 - Independent Component Analysis
+
+$W ^\prime = K \cdot W$
+
+```{r echo=FALSE}
+plot(ica.spectra_Winv[,1], main="Traceplot - W' Col 1", ylab = "W'(Col1)")
+plot(ica.spectra_Winv[,2], main="Traceplot - W' Col 2", ylab = "W'(Col1)")
+```
+When comparing these traceplots to the traceplots of step 2, the traceplot of W’ Col 2 is very similar to the plot of PC2 with inverted y-axis.
+
+The measure represented by the matrix $W ^\prime$ may be interpreted as a whitening un-mixing matrix. This is because it is supposed to be the invers, and undo the work, of the mixing matrix. 
+
+```{r echo=FALSE}
+plot(ica.spectra$S[,1], ica.spectra$S[,2], main = "Score", ylab = "Latent 2", xlab = "Latent 1")
+```
+This plot, of the correlation of the two latent features,is quite similar to the plot of PC1 and PC2 in step 1 - with the difference of being rotated 180 degrees.
+
+\newpage
+
+# Appendices
+
+## Appendix I - Assignment 1
 
 ```{r echo=TRUE, warning=FALSE, eval=FALSE}
 #setup
@@ -460,7 +507,10 @@ crabs.sex.glm_model.predicted.missclassification_rate
 ```
 
 
-## Appendix 2 - Assignment 2
+
+\newpage
+
+## Appendix II - Assignment 2
 
 ```{r echo=TRUE, warning=FALSE, eval=FALSE}
 library(tree)
@@ -643,4 +693,11 @@ print(confMa.test.naive.loss)
 misCl.test.naive.loss <- 1-(sum(diag(confMa.test.naive.loss))/sum(confMa.test.naive.loss))
 print(misCl.test.naive.loss)
 
+```
+
+
+\newpage
+
+## Appendix III - Assignment 4
+```{r, code=readLines("Ass 4.R"), eval=FALSE, echo=TRUE}
 ```
