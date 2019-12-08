@@ -345,10 +345,10 @@ naive.train.raw = predict(naive.model, newdata = train, type="raw")
 
 #1*p(bad|x) > 10*p(good|x) -> bad, L12=1, L21=10, L12/L21=10
 confMa.train.naive.loss = table(train$good_bad, ifelse(
-                          naive.train.raw[,1]/naive.train.raw[,2] > 10, "bad", "good"))
+                          naive.train.raw[,1]/naive.train.raw[,2] > 0.1, "bad", "good"))
 misCl.train.naive.loss <- 1-(sum(diag(confMa.train.naive.loss))/sum(confMa.train.naive.loss))
 
-confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 10, "bad", "good"))
+confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 0.1, "bad", "good"))
 
 misCl.test.naive.loss <- 1-(sum(diag(confMa.test.naive.loss))/sum(confMa.test.naive.loss))
 
@@ -372,7 +372,7 @@ knitr::kable(confMa.test.naive.loss, format = 'latex')
 
 The test data also has the missclassification rate of `r misCl.test.naive.loss`.
 
-Firstly, what can be seen is that the missclassification rate with the loss matrix are lower than without it. The reason for this is that the loss matrix helps the model learn what is more "costly" to the function and what isn't.
+Firstly, what can be seen is that the missclassification rate with the loss is higher than without it. The reason for this is that the loss matrix makes it so that it is a lot worse to give loan to a "bad" customer than to not give a "good" customer. One can also see that clearly in the loss matrix with the lowest value being giving a loan to a bad customer.
 
 
 # Assignment 4
@@ -457,18 +457,22 @@ plot(WTICK[,1], main= "Latent feature 1")
 
 
 ```
-
-The plot above shows the 
-
 ```{r}
 plot(WTICK[,2], main= "Latent feature 2")
+```
 
+The two plots above both shows the latent features for the the W' columns 1 and 2. As can be seen they are inverted along the y-axis compared to the plots for PC1  and PC2.
+
+
+```{r}
 
 # Plot of scores
 plot(ICA$S[,1], ICA$S[,2], main = "Score", ylab = "Latent 2", xlab = "Latent 1")
 ```
 
+This plot is also a inverted version of the corresponding plot, PC1 vs PC2, but along the x-axis.
 
+\newpage
 
 # Appendixes for code
 
@@ -728,12 +732,12 @@ naive.train.raw = predict(naive.model, newdata = train, type="raw")
 
 
 #1*p(bad|x) > 10*p(good|x) -> bad, L12=1, L21=10, L12/L21=10
-confMa.train.naive.loss = table(train$good_bad, ifelse(naive.train.raw[,1]/naive.train.raw[,2] > 10, "bad", "good"))
+confMa.train.naive.loss = table(train$good_bad, ifelse(naive.train.raw[,1]/naive.train.raw[,2] > 0.1, "bad", "good"))
 print(confMa.train.naive.loss)
 misCl.train.naive.loss <- 1-(sum(diag(confMa.train.naive.loss))/sum(confMa.train.naive.loss))
 print(misCl.train.naive.loss)
 
-confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 10, "bad", "good"))
+confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 0.1, "bad", "good"))
 
 
 print(confMa.test.naive.loss)

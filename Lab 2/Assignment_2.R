@@ -167,12 +167,12 @@ naive.train.raw = predict(naive.model, newdata = train, type="raw")
 
 
 #1*p(bad|x) > 10*p(good|x) -> bad, L12=1, L21=10, L12/L21=10
-confMa.train.naive.loss = table(train$good_bad, ifelse(naive.train.raw[,1]/naive.train.raw[,2] > 10, "bad", "good"))
+confMa.train.naive.loss = table(train$good_bad, ifelse(naive.train.raw[,1]/naive.train.raw[,2] > 0.1, "bad", "good"))
 print(confMa.train.naive.loss)
 misCl.train.naive.loss <- 1-(sum(diag(confMa.train.naive.loss))/sum(confMa.train.naive.loss))
 print(misCl.train.naive.loss)
 
-confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 10, "bad", "good"))
+confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 0.1, "bad", "good"))
 
 
 print(confMa.test.naive.loss)
