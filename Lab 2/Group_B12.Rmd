@@ -374,7 +374,7 @@ misCl.test.naive.loss <- 1-(sum(diag(confMa.test.naive.loss))/sum(confMa.test.na
 
 ```
 
-The table for the confusion matrix of the training data for the Naive Bayes model model: 
+The table for the confusion matrix of the training data for the Naive Bayes model: 
 
 ```{r}
 knitr::kable(confMa.train.naive.loss, format = 'latex')
@@ -383,7 +383,7 @@ knitr::kable(confMa.train.naive.loss, format = 'latex')
 
 The training data also has the missclassification rate of `r misCl.train.naive.loss`.
 
-The table for the confusion matrix of the test data for the Naive Bayes model model: 
+The table for the confusion matrix of the test data for the Naive Bayes model: 
 
 ```{r}
 knitr::kable(confMa.test.naive.loss, format = 'latex')
