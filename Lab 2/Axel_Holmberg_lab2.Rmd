@@ -44,7 +44,7 @@ plot_crabs_lda
 
 ```
 
-The plot that one gets from the LDA-model almost looks the exact same as the previous one. This is due to that it uses the same data-points, but the gender is changed. There are just a small amount of data-points that "changed gender" compared to the previous figure. This can also be seen in the confusionmatrix below.
+The plot that one gets from the LDA-model almost looks the exact same as the previous one. This is due to that it uses the same data-points, but the gender is changed. There are just a small amount of data-points that "changed gender" compared to the previous figure, mainly for the small crabs (data points closer to origo). This can also be seen in the confusionmatrix below.
 
 
 ```{r}
