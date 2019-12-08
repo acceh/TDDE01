@@ -13,15 +13,145 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+```{r setup_and_func_def, echo=FALSE, warning = FALSE}
+# This code is for setup and function definition. It will not be printed to the output file.
+# IMPORTS
+library(ggplot2)
+library(MASS)
+library(tree)
+library(readxl)
+library(e1071)
+library(knitr) # For making nice tables
+
+# Set random generator
+set.seed(12345, sample.kind="Rounding")
+```
+
+# Assignment 1. LDA and logistic regression
+In this assignment we work with a data set containing information about  Austrailian crabs. The first task is to plot carapace length (CL) versus rear width (RW) and group data by Sex.
+
+```{r scatter_plot_observed, echo=FALSE}
+crabs.data <- read.csv("australian-crabs.csv")
+crabs.sex.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=sex)) + 
+  geom_point() + 
+  labs(title="carapace length (CL) versus rear width (RW)", subtitle="Observed sex used for coloring data.")
+crabs.sex.plot
+
+```
+
+As can be observed in the plot. A line can be drawn, dividing the data in to two groups. Therefore, linear discriminant analysis can be used for modeling and making preditions.
+
+Based on this conclusion a LDA analysis with target Sex and features CL and RW was made and a model derived using `lda()` with a proportional prior. After the model was derived it was used to predict the Sex of crabs in the data set. The prediction was then used to color the intial data and make a plot similar to the previous one.
+
+```{r scatter_plot_predicted, echo=FALSE}
+crabs.sex.lda_model <- lda(sex ~ RW + CL, data = crabs.data)
+crabs.predicted <- predict(crabs.sex.lda_model,crabs.data, prior = crabs.sex.lda_model$prior)
+crabs.predicted.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=crabs.predicted$class)) +
+  geom_point() +
+  labs(color="sex", 
+       title="carapace length (CL) versus rear width (RW).", 
+       subtitle="Predicted sex used for coloring data. Proportional prior")
+crabs.predicted.plot
+```
+
+One can observe a small difference in the coloring of the data points. These changes occur close to the tail of the data ploted data, meaning smaller crabs. Another observation is that the the border between the different groups has become more distinct. The reason being that we use LDA when fitting out model.
+
+To see how good of a prediction the model did we create a confusion matrix and calculate missclassification rate.
+```{r echo=FALSE}
+crabs.predicted.confusionmatrix <- table(predicted=crabs.predicted$class,observed=crabs.data$sex)
+crabs.predicted.missclassification_rate <- 1- (sum(diag(crabs.predicted.confusionmatrix))/sum(crabs.predicted.confusionmatrix))
+
+print("Confusion matrix")
+crabs.predicted.confusionmatrix
+print(paste("Missclassification rate:", crabs.predicted.missclassification_rate))
+```
+With this missclassification rate the model can be said to be of good quality. However considiring the size of the data set nothing can be assumed about the over all quality.
+
+Now the priors will be changed from $p(Male)=p(Female)=0.5$ to $p(Male)= 0.9 \quad and \quad p(Female)=0.1$ and the confusion matrix and missclassification rate is once more calculated. Also the data points are once more ploted, now using the new prediction for coloring.
+
+```{r echo=FALSE}
+crabs.sex.own_priors <- crabs.sex.lda_model$prior
+crabs.sex.own_priors <- c(0.1,0.9)
+crabs.sex.own_priors.predicted <- predict(crabs.sex.lda_model,crabs.data, prior = crabs.sex.own_priors)
+crabs.sex.own_priors.predicted.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=crabs.sex.own_priors.predicted$class)) + 
+  geom_point() +
+  labs(color="sex", 
+       title="carapace length (CL) versus rear width (RW).", 
+       subtitle="Predicted sex used for coloring data. Own prior")
+crabs.sex.own_priors.predicted.plot
+
+crabs.sex.own_priors.predicted.confusionmatrix <- table(predicted=crabs.sex.own_priors.predicted$class,observed=crabs.data$sex)
+crabs.sex.own_priors.predicted.missclassification_rate <- 1- (sum(diag(crabs.sex.own_priors.predicted.confusionmatrix))/sum(crabs.sex.own_priors.predicted.confusionmatrix))
+
+print("Confusion matrix")
+crabs.sex.own_priors.predicted.confusionmatrix
+print(paste("Missclassification rate:", crabs.sex.own_priors.predicted.missclassification_rate))
+```
+
+As the output shows, the missclassification rate has increased. This can also be observed when comparing this plot with the previous one. Changing the prior from a proportional to $p(Male)=p(Female)=0.5$ to $p(Male)= 0.9 \quad and \quad p(Female)=0.1$ means that we "tell" the model that previous observations show this distribution between the two sexes.
+
+The last step of this assignmen is to use `glm()`to perform a logistic regression. The data will once more be ploted but now also with the line creating the decisions boundry.
+
+```{r glm, echo=FALSE, warning=FALSE}
+crabs.sex.glm_model <- glm(sex ~ RW + CL, family=binomial, data = crabs.data)
+crabs.sex.glm_model.predicted <- predict(crabs.sex.glm_model,crabs.data, type="response")
+crabs.sex.glm_model.classified <- ifelse(crabs.sex.glm_model.predicted > 0.5, "Male", "Female")
+
+crabs.sex.glm_model.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=crabs.sex.glm_model.classified)) +
+  geom_point() +
+  labs(color="sex", 
+       title="carapace length (CL) versus rear width (RW).", 
+       subtitle="Predicted sex used for coloring data. Logistic regression")
+
+# Extracting coefficients for line equation
+line.B = crabs.sex.glm_model[["coefficients"]][["CL"]]
+line.A = crabs.sex.glm_model[["coefficients"]][["RW"]]
+line.M = crabs.sex.glm_model[["coefficients"]][["(Intercept)"]]
+line.limit = 0 # From the equation of a straight line
+# Creating function from line equation to use for plot
+line.equ <- function(x){(line.B*x+line.M-line.limit)/(-line.A)}
+
+crabs.sex.glm_model.plot <- crabs.sex.glm_model.plot + 
+  geom_line(aes(x = CL, y = line.equ(CL), color = "Decision\nboundry"))
+
+crabs.sex.glm_model.plot
+
+# conf and miss
+
+crabs.sex.glm_model.predicted.confusionmatrix <- table(predicted=crabs.sex.glm_model.classified,observed=crabs.data$sex)
+crabs.sex.glm_model.predicted.missclassification_rate <- 1- (sum(diag(crabs.sex.glm_model.predicted.confusionmatrix))/sum(crabs.sex.glm_model.predicted.confusionmatrix))
+
+```
+
+```{r results= 'asis', echo=FALSE}
+    cat("The equation for the line is: ")
+    cat("RW =",line.B/(-line.A),"* CL +",(line.M-line.limit)/(-line.A))
+    cat("\n\n")
+```
+
+Below the confusion matrix and missclassificaation rate for the logistic regression classification can be found.
+
+```{r echo=FALSE, warning=FALSE}
+print("Confusion matrix")
+crabs.sex.glm_model.predicted.confusionmatrix
+print(paste("Missclassification rate:", crabs.sex.glm_model.predicted.missclassification_rate))
+
+
+```
+
+
+Last the missclassification rates for each model is compared.
+```{r, echo=FALSE}
+dft <- data.frame(matrix(c("LDA","Proportional",crabs.predicted.missclassification_rate,"LDA","0.9/0.1",crabs.sex.own_priors.predicted.missclassification_rate,"GLM","Proportional",crabs.sex.glm_model.predicted.missclassification_rate),nrow=3,ncol=3, byrow=TRUE))
+colnames(dft) <- c("type","prior","missclassification rate")
+kable(dft, format = "latex")
+```
+As one can observe LDA and GLM give the same error rate when proportional priors are used.
+
 # Assignment 2
 
 ```{r}
-setwd("~/Programming/TDDE01/Lab 2")
-library(tree)
-library(readxl)
-library(MASS)
-library(e1071)
-
 data <- read_excel("creditscoring.xls")
 set.seed(12345, sample.kind="Rounding")
 
@@ -264,6 +394,71 @@ Firstly, what can be seen is that the missclassification rate with the loss is h
 \newpage
 
 # Appendixes for code
+
+## Appendix 1 - Assignment 1
+
+```{r echo=TRUE, warning=FALSE, eval=FALSE}
+#setup
+#RNGversion('3.5.1')
+set.seed(12345)
+library(ggplot2)
+library(MASS)
+
+#1
+crabs.data <- read.csv("australian-crabs.csv")
+crabs.sex.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=sex)) + geom_point()
+crabs.sex.plot
+
+#2
+crabs.sex.lda_model <- lda(sex ~ RW + CL, data = crabs.data)
+print(crabs.sex.lda_model)
+crabs.predicted <- predict(crabs.sex.lda_model,crabs.data, prior = crabs.sex.lda_model$prior)
+crabs.predicted.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=crabs.predicted$class))+ geom_point()
+crabs.predicted.plot
+crabs.predicted.confusionmatrix <- table(crabs.predicted$class,crabs.data$sex)
+crabs.predicted.confusionmatrix
+crabs.predicted.missclassification_rate <- 1 - (sum(diag(crabs.predicted.confusionmatrix))/sum(crabs.predicted.confusionmatrix))
+crabs.predicted.missclassification_rate
+
+#3
+crabs.sex.own_priors <- crabs.sex.lda_model$prior
+crabs.sex.own_priors <- c(0.1,0.9)
+crabs.sex.own_priors.predicted <- predict(crabs.sex.lda_model,crabs.data, prior = crabs.sex.own_priors)
+crabs.sex.own_priors.predicted.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=crabs.sex.own_priors.predicted$class)) + geom_point()
+crabs.sex.own_priors.predicted.plot
+
+crabs.sex.own_priors.predicted.confusionmatrix <- table(crabs.sex.own_priors.predicted$class,crabs.data$sex)
+crabs.sex.own_priors.predicted.confusionmatrix
+crabs.sex.own_priors.predicted.missclassification_rate <- 1- (sum(diag(crabs.sex.own_priors.predicted.confusionmatrix))/sum(crabs.sex.own_priors.predicted.confusionmatrix))
+crabs.sex.own_priors.predicted.missclassification_rate
+
+#4
+crabs.sex.glm_model <- glm(sex ~ RW + CL, family=binomial, data = crabs.data)
+crabs.sex.glm_model.predicted <- predict(crabs.sex.glm_model,crabs.data, type="response")
+crabs.sex.glm_model.classified <- ifelse(crabs.sex.glm_model.predicted > 0.5, "Male", "Female")
+
+crabs.sex.glm_model.plot <- ggplot(crabs.data, aes(x=CL, y=RW, color=crabs.sex.glm_model.classified)) + geom_point()
+
+# Extracting coefficients for line equation
+line.B = crabs.sex.glm_model[["coefficients"]][["CL"]]
+line.A = crabs.sex.glm_model[["coefficients"]][["RW"]]
+line.M = crabs.sex.glm_model[["coefficients"]][["(Intercept)"]]
+line.limit = 0 # From the equation of a straight line
+# Creating function from line equation to use for plot
+line.equ <- function(x){(line.B*x+line.M-line.limit)/(-line.A)}
+
+crabs.sex.glm_model.plot <- crabs.sex.glm_model.plot + geom_line(aes(x = CL, y = line.equ(CL), color = "Decision\nboundry")) + labs(title="Crabs classified", color = "Legend")
+
+crabs.sex.glm_model.plot
+
+
+crabs.sex.glm_model.predicted.confusionmatrix <- table(crabs.sex.glm_model.classified,crabs.data$sex)
+crabs.sex.glm_model.predicted.confusionmatrix
+crabs.sex.glm_model.predicted.missclassification_rate <- 1- (sum(diag(crabs.sex.glm_model.predicted.confusionmatrix))/sum(crabs.sex.glm_model.predicted.confusionmatrix))
+crabs.sex.glm_model.predicted.missclassification_rate
+
+```
+
 
 ## Appendix 2 - Assignment 2
 
