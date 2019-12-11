@@ -173,7 +173,7 @@ misCl.train.naive.loss <- 1-(sum(diag(confMa.train.naive.loss))/sum(confMa.train
 print(misCl.train.naive.loss)
 
 confMa.test.naive.loss = table(test$good_bad, ifelse(naive.test.raw[,1]/naive.test.raw[,2] > 0.1, "bad", "good"))
-
+  
 
 print(confMa.test.naive.loss)
 misCl.test.naive.loss <- 1-(sum(diag(confMa.test.naive.loss))/sum(confMa.test.naive.loss))
