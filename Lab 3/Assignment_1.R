@@ -1,4 +1,5 @@
-setwd("~/Programming/TDDE01/Lab 3")
+setwd("~/TDDE01/TDDE01/Lab 3")
+RNGversion('3.5.1')
 set.seed(1234567890)
 
 library("geosphere")
@@ -12,6 +13,22 @@ b <- 14.826
 p1 <-  c(st$latitude,st$longitude)
 p2 <- c(a,b)
 
+
+#Filters posterior date
+filterPosteriorDate <- function(data,date) {
+  return(data[!(as.Date(data$date)-as.Date(date))>=0,])
+}
+
+#Filters posterior time
+filterPosteriorTime <- function(data, time, date) {
+  return (data[!(as.Date(data$date) == as.Date(date) & 
+                 as.numeric(difftime(strptime(data$time, format="%H:%M:%S"), 
+                 strptime(time, format="%H:%M:%S"))) > 0 ),])
+}
+
+
+
+#Kernel for distance computing to point of interest
 distCompute <- function(p1, p2) {
   
   return (distHaversine(p1,p2));

@@ -28,9 +28,6 @@ vignettes/*.pdf
 /*_cache/
 /cache/
 
-#PDF
-*.pdf
-
 #File not to be uploaded
 assignment3_help.R
 
@@ -43,3 +40,4 @@ assignment3_help.R
 
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
+.Rproj.user
