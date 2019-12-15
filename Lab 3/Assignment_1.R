@@ -8,16 +8,17 @@ stations <- read.csv("stations.csv")
 temps <- read.csv("temps50k.csv")
 st <- merge(stations, temps, by = "station_number")
 
-## These three values are up to the user
-a <- 58.4274 # The lat of the point to predict
-b <- 14.826 # The long of the point to predict
-date <-"2013-11-04" # The date to predict (up to the students) 
+## These values are up to the user
+ud.lat <- 58.4274 # The lat of the point to predict
+ud.long <- 14.826 # The long of the point to predict
+ud.date <-"2013-11-04" # The date to predict (up to the students) 
+ud.h_distance <- 100000
+ud.h_date <- 10
+ud.h_time <- 4
+
 ##End input
 times <- c("04:00:00", "06:00:00","06:00:00","08:00:00","10:00:00","12:00:00",
            "14:00:00","16:00:00","18:00:00","20:00:00", "22:00:00", "24:00:00")
-
-p1 <-  c(st$latitude[1],st$longitude[1])
-p2 <- c(a,b)
 
 
 #Filters posterior date
@@ -43,22 +44,16 @@ dateGaussian <- function(p1, p2, h) {
 }
 
 timeGaussian <- function(p1,p2,h) {
-  return(exp(-((difftime(strptime(p1, format="%H:%M:%S"), strptime(p2, format="%H:%M:%S"))))**2)/h)
+  return(exp(-(difftime(strptime(p1, format="%H:%M:%S"), strptime(p2, format="%H:%M:%S")))**2)/h)
 }
   
   
-  
-  
-  
-  
-  
-  
+tempEst <- function(data, )
   
 
 
-h_distance <- 500000
-h_date <- 5
-h_time <- 2
 
-temp <- vector(length = length(times)) # Students’ code here
+
+
+temp <- vector(length = length(times)) # Students code here
 plot(temp, type = "o")
