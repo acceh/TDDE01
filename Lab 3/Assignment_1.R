@@ -27,7 +27,7 @@ filterPosteriorDate <- function(data,date) {
 }
 
 #Filters posterior time
-filterPosteriorTime <- function(data, time, date) {
+filterPosteriorTime <- function(data, date, time) {
   return (data[!(as.Date(data$date) == as.Date(date) & 
                  as.numeric(difftime(strptime(data$time, format="%H:%M:%S"), 
                  strptime(time, format="%H:%M:%S"))) > 0 ),])
@@ -35,7 +35,7 @@ filterPosteriorTime <- function(data, time, date) {
 
 #Kernel for distance computing to point of interest
 distGaussian <- function(data, target, h) {
-  return (exp(-(distHaversine(data.frame(data$longitude,data$latitude), target)/h)**2));
+  return (exp(-(distHaversine(data.frame(data$latitude,data$longitude), target)/h)**2));
 }
 
 #Kenrel for date
@@ -53,7 +53,8 @@ timeGaussian <- function(p1,p2,h) {
 tempEst <- function(data, ud) {
   
   filtered_data <- filterPosteriorDate(data, ud.date)
-  distance <- distGaussian(filtered_data, c(ud.lat,ud.long), ud.h_distance)
+  distance <- distGaussian(filtered_data, data.frame(ud.lat, ud.long), ud.h_distance)
+  View(distance)
   day <- dateGaussian(filtered_data$date, ud.date, ud.h_date)
  
   length=length(ud.times)  
