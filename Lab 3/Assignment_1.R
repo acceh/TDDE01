@@ -9,9 +9,9 @@ temps <- read.csv("temps50k.csv")
 st <- merge(stations, temps, by = "station_number")
 
 ## These values are up to the user. ud = user defined
-ud.lat <- 58.4274 # The lat of the point to predict
-ud.long <- 14.826 # The long of the point to predict
-ud.date <-"2008-08-04" # The date to predict (up to the students) 
+ud.lat <- 59.325 # The lat of the point to predict
+ud.long <- 18.071 # The long of the point to predict
+ud.date <-"2016-12-24" # The date to predict (up to the students) 
 ud.h_distance <- 100000
 ud.h_date <- 10
 ud.h_time <- 4
@@ -52,7 +52,7 @@ dateGaussian <- function(data, target, h) {
 timeGaussian <- function(data,target,h) {
   time_difference <- difftime(strptime(data$time, format="%H:%M:%S"), 
                               strptime(target, format="%H:%M:%S"))
-  u <- as.numeric(time_difference/3600)/h
+  u <- as.numeric(time_difference)/h
   return(exp(-(u)^2))
 }
   
@@ -74,6 +74,9 @@ tempEst <- function(data) {
     t_multi[i] <- sum(kernel_multi %*% filtered_data_by_time$air_temperature)/sum(kernel_multi)
   }
   
+  View(distance)
+  View(day)
+  View(time)
   
   return(list(t_sum=t_sum, t_multi=t_multi))
 }
@@ -87,9 +90,3 @@ axis(1, at=1:length(ud.times), labels=ud.times)
 plot(temps$t_multi,xaxt='n', xlab="Time", 
      ylab="Temperature", type="o", main = "Multiplication of kernels")
 axis(1, at=1:length(ud.times), labels=ud.times)
-
-
-
-
-
-

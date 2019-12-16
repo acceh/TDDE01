@@ -41,3 +41,7 @@ assignment3_help.R
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 .Rproj.user
+
+#Word files
+*.docx
+*.doc
