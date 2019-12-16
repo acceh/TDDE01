@@ -1,4 +1,4 @@
-setwd("~/TDDE01/TDDE01/Lab 3")
+setwd("~/Programming/TDDE01/Lab 3")
 RNGversion('3.5.1')
 set.seed(1234567890)
 
@@ -11,7 +11,7 @@ st <- merge(stations, temps, by = "station_number")
 ## These values are up to the user. ud = user defined
 ud.lat <- 58.4274 # The lat of the point to predict
 ud.long <- 14.826 # The long of the point to predict
-ud.date <-"2013-11-04" # The date to predict (up to the students) 
+ud.date <-"2015-06-04" # The date to predict (up to the students) 
 ud.h_distance <- 100000
 ud.h_date <- 10
 ud.h_time <- 4
@@ -35,51 +35,60 @@ filterPosteriorTime <- function(data, date, time) {
 
 #Kernel for distance computing to point of interest
 distGaussian <- function(data, target, h) {
-  return (exp(-(distHaversine(data.frame(data$latitude,data$longitude), target)/h)**2));
+  dist <- distHaversine(data.frame(data$latitude,data$longitude), target)
+  return (exp(-(dist/h)^2));
 }
 
 #Kenrel for date
-dateGaussian <- function(p1, p2, h) {
-  return(exp(-(as.numeric(as.numeric(as.Date(p1))-as.numeric(as.Date(p2)))/h)**2))
+dateGaussian <- function(data, target, h) {
+  date_diff <- as.numeric(as.Date(data$date)-as.Date(target), unit="days")
+  u <- date_diff/h
+  return(exp(-(u)^2))
 }
 
-
-timeGaussian <- function(p1,p2,h) {
-  return(exp(-(as.numeric(difftime(strptime(p1, format="%H:%M:%S"), strptime(p2, format="%H:%M:%S")))/h/3600)**2))
+#Kernel for time
+timeGaussian <- function(data,target,h) {
+  time_difference <- difftime(strptime(data$time, format="%H:%M:%S"), 
+                              strptime(target, format="%H:%M:%S"))
+  u <- as.numeric(time_difference/3600)/h
+  return(exp(-(u)^2))
 }
 
 
   
-tempEst <- function(data, ud) {
-  
+tempEst <- function(data) {
   filtered_data <- filterPosteriorDate(data, ud.date)
-  distance <- distGaussian(filtered_data, data.frame(ud.lat, ud.long), ud.h_distance)
-  View(distance)
-  day <- dateGaussian(filtered_data$date, ud.date, ud.h_date)
- 
-  length=length(ud.times)  
+  distance <- distGaussian(filtered_data, data.frame(ud.long, ud.lat), ud.h_distance)
+  day <- dateGaussian(filtered_data, ud.date, ud.h_date)
+  length=length(ud.times) 
   t_sum <- vector(length=length)
   t_multi <- vector(length=length)
-  
-  for  (i in length) {
+
+  for  (i in 1:length) {
+    print(i)
     filtered_data_by_time <- filterPosteriorTime(filtered_data, ud.date, ud.times[i])
-    time <- timeGaussian(filtered_data_by_time$time, ud.times[i], ud.h_time)
+    time <- timeGaussian(filtered_data_by_time, ud.times[i], ud.h_time)
     kernel_sum <- distance + day + time
     kernel_multi <- distance * day * time
     t_sum[i] <- sum(kernel_sum %*% filtered_data_by_time$air_temperature)/sum(kernel_sum)
-    t_multi[i] <- sum(kernel_sum %*% filtered_data_by_time$air_temperature)/sum(kernel_multi)
-
+    t_multi[i] <- sum(kernel_multi %*% filtered_data_by_time$air_temperature)/sum(kernel_multi)
+    filtered_data_by_time <- filtered_data
+    
   }
   
   return(list(t_sum=t_sum, t_multi=t_multi))
 }
   
+temps <- tempEst(st)
 
-
-temps <- tempEst(st, ud)
-
-plot(temps$t_sum, xaxt = "n", xlab="Time", ylab="Temperature", type="o", main = "Sum of kernels")
+plot(temps$t_sum, xlab="Time", ylab="Temperature", type="o", main = "Sum of kernels")
 axis(1, at=1:length(ud.times), labels=ud.times)
 
-temp <- vector(length = length(times)) # Students code here
-plot(temp, type = "o")
+plot(temps$t_multi, xlab="Time", ylab="Temperature", type="o", main = "Multiplication of kernels")
+axis(1, at=1:length(ud.times), labels=ud.times)
+
+
+
+
+
+
