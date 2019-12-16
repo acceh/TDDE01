@@ -93,10 +93,6 @@ tempEst <- function(data) {
     t_multi[i] <- sum(kernel_multi %*% filtered_data_by_time$air_temperature)/sum(kernel_multi)
   }
   
-  View(distance)
-  View(day)
-  View(time)
-  
   return(list(t_sum=t_sum, t_multi=t_multi))
 }
   
@@ -120,7 +116,8 @@ axis(1, at=1:length(ud.times), labels=ud.times)
 
 The plot above shows the plot for the product of kernels.
 
-The kernel fu
+The width chosen for the three kernels are $100 000$ for distance, $10$ for date and $4$ for time. The reasoning for the kernel width is that it gives the most spread out data points for the
+## TODO Skriv färdigt detta
 
 ## Assignment 2 - Neural network for the sinus function
 
@@ -170,12 +167,12 @@ for(i in 1:10) {
 
 }
 
-plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
 plot(threshold, mse_train, type="o", ylab="MSE", main = "Training dataset")
+plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
 
 ```
 
-The plots above shows the MSE for the validaiton dataset and the training dataset.
+The plots above shows the MSE for the validaiton dataset and the training dataset. One can see that the MSE is lowest for $i=4$ in the validation plot, and is thereby chosen for the neural network.
 
 ```{r}
 
@@ -185,7 +182,7 @@ nn <- neuralnet(Sin ~ Var, data = trva, startweights = winit, hidden = c(10),
 plot(nn)
 ```
 
-
+Above the neural net can be seen with its' 10 hidden nodes and its' acoompanying values.
 
 ```{r}
 pred_nn <- prediction(nn)$rep1
@@ -194,7 +191,7 @@ plot_net <- ggplot() + geom_point(aes(pred_nn[,1], pred_nn[,2])) +
 plot_net
 ```
 
-
+Finally the plot with the predicted data (black points) plotted against the original data(red points). As one can see the points almost perfectly line up, which is the desired outcome.
 
 # Appendices for code
 

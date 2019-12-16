@@ -13,7 +13,7 @@ ud.lat <- 59.325 # The lat of the point to predict
 ud.long <- 18.071 # The long of the point to predict
 ud.date <-"2016-12-24" # The date to predict (up to the students) 
 ud.h_distance <- 100000
-ud.h_date <- 10
+ud.h_date <- 30
 ud.h_time <- 4
 ##End input
 
@@ -55,33 +55,35 @@ timeGaussian <- function(data,target,h) {
   u <- as.numeric(time_difference)/h
   return(exp(-(u)^2))
 }
-  
-tempEst <- function(data) {
-  filtered_data <- filterPosteriorDate(data, ud.date)
-  length=length(ud.times) 
-  t_sum <- vector(length=length)
-  t_multi <- vector(length=length)
-  for  (i in 1:length) {
-    print(i)
-    filtered_data_by_time <- filterPosteriorTime(filtered_data, ud.date, ud.times[i])
-    time <- timeGaussian(filtered_data_by_time, ud.times[i], ud.h_time)
-    distance <- distGaussian(filtered_data_by_time, data.frame(ud.long, ud.lat), ud.h_distance)
-    day <- dateGaussian(filtered_data_by_time, ud.date, ud.h_date)
-    kernel_sum <- distance + day + time
-    kernel_multi <- distance * day * time
-    t_sum[i] <- sum(kernel_sum %*% filtered_data_by_time$air_temperature)/sum(kernel_sum)
-    print(t_sum[i])
-    t_multi[i] <- sum(kernel_multi %*% filtered_data_by_time$air_temperature)/sum(kernel_multi)
-  }
-  
-  View(distance)
-  View(day)
-  View(time)
-  
-  return(list(t_sum=t_sum, t_multi=t_multi))
+
+filtered_data <- filterPosteriorDate(st, ud.date)
+length = length(ud.times)
+t_sum <- vector(length = length)
+t_multi <- vector(length = length)
+for (i in 1:length) {
+  print(i)
+  filtered_data_by_time <-
+    filterPosteriorTime(filtered_data, ud.date, ud.times[i])
+  time <-
+    timeGaussian(filtered_data_by_time, ud.times[i], ud.h_time)
+  distance <-
+    distGaussian(filtered_data_by_time,
+                 data.frame(ud.long, ud.lat),
+                 ud.h_distance)
+  day <- dateGaussian(filtered_data_by_time, ud.date, ud.h_date)
+  kernel_sum <- distance + day + time
+  kernel_multi <- distance * day * time
+  t_sum[i] <-
+    sum(kernel_sum %*% filtered_data_by_time$air_temperature) / sum(kernel_sum)
+  t_multi[i] <-
+    sum(kernel_multi %*% filtered_data_by_time$air_temperature) / sum(kernel_multi)
 }
-  
-temps <- tempEst(st)
+plot(1:length(distance), distance, main = "Distance")
+plot(1:length(day), day, main = "Day")
+plot(1:length(time), distance, main = "Time")
+
+
+temps <- list(t_sum=t_sum, t_multi=t_multi)
 
 plot(temps$t_sum,xaxt='n', xlab="Time", 
      ylab="Temperature", type="o", main = "Sum of kernels")
