@@ -165,6 +165,8 @@ h_test.plotKernalHour(h_test.time_diff, ud.h_time)
 
 Above is the plot for what hour it is. As one can see that with the chosen h-value only the hours that are close to the hour to be estimated is affecting the estimation of the temperature.
 
+\newpage
+
 ## Assignment 2 - Neural network for the sinus function
 
 Assignment 2 is about implementing a neural network for the sinus function based on 50 data points and then choosing the best 
@@ -238,6 +240,8 @@ plot_net
 ```
 
 Finally the plot with the predicted data (black points) plotted against the original data(red points). As one can see the points almost perfectly line up, which is the desired outcome.
+
+\newpage
 
 # Appendices for code
 
@@ -391,7 +395,7 @@ va <- trva[26:50,] # Validation
 # 31 weights are used
 winit <- runif(31, -1, 1)
 
-# Function predicting MSE
+# Function predicting the mean square error
 mse <- function(prediction, observation) {
   return (mean((observation - prediction)^2))
 }
@@ -419,7 +423,6 @@ for(i in 1:10) {
 plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
 plot(threshold, mse_train, type="o", ylab="MSE", main = "Training dataset")
 
-# Your code here
 nn <- neuralnet(Sin ~ Var, data = trva, startweights = winit, hidden = c(10),
                      threshold = 4/1000)
 plot(nn)
