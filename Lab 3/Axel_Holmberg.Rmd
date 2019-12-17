@@ -167,9 +167,9 @@ Above is the plot for what hour it is. As one can see that with the chosen h-val
 
 \newpage
 
-## Assignment 2 - Neural network for the sinus function
+## Assignment 3 - Neural network for the sinus function
 
-Assignment 2 is about implementing a neural network for the sinus function based on 50 data points and then choosing the best 
+Assignment 3 is about implementing a neural network for the sinus function based on 50 data points and then choosing the best 
 
 ```{r}
 
@@ -229,6 +229,8 @@ nn <- neuralnet(Sin ~ Var, data = trva, startweights = winit, hidden = c(10),
                      threshold = 4/1000)
 plot(nn)
 ```
+
+![](nn.png)
 
 Above the neural net can be seen with its' 10 hidden nodes and its' acoompanying values.
 
@@ -372,8 +374,7 @@ h_test.plotKernalHour(h_test.time_diff, ud.h_time)
 
 ```
 
-## Appendix 2 - Code for assignment 2
-
+## Appendix 2 - Code for assignment 3
 
 ```{r echo=TRUE, warning=FALSE, eval=FALSE}
 
