@@ -1,5 +1,5 @@
 ---
-title: "Lab 3"
+title: "Lab 3 - Group B12"
 author: "Axel Holmberg (axeho681), Jonathan Reimertz (jonre639) and Wilhelm Hansson   (wilha431)"
 output: pdf_document
 ---
@@ -12,14 +12,46 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Lab 3 - Group B12
+# Assignment 1 
+```{r, code=readLines("Ass 1.R"), include=FALSE}
+```
+In this assignment we implemented a kenrel method to predict hourly temperatures for a date and place in Sweden. For this we used a kernel that is the sum of three Gaussian kernels.
+1. Distance from observed weather station to point of interest.
+2. Days between observed date and date of interest (days of the year).
+3. Hours between observed time and time of interest.
+
+The smoothing coefficients for the three gaussian kernels were chosen so that it they would look similar to the function of $k(u)=e^{-u^2}$, as of graph below.
+
+```{r echo=FALSE}
+plot.comparison
+```
+
+When predicting the temperature for 2013-04-07 in Vadstena (Latitude: 58.4274, Longitude: 14.826) the following plots of the k-value is obtained.
+
+```{r echo=FALSE}
+plot.distance
+plot.date
+plot.time
+```
+As visualised by the date-plot, the k-value is dependent on how close the observed date is to the date of interest - this is by the year, which means that for example 5th of August 2019 is equally much accounted for as 5th of Augsut 2018. 
+
+
+When predicting the temperature for 2013-04-07 in Vadstena (same as above), the following graphs were obtained. The first graph by using the sum of the three gaussian kernels and second by using the product of the three gaussian kernels.
+
+```{r echo=FALSE,  fig.width=8}
+plot.sum
+plot.product
+```
+The second plot is more even is by the look of it more correct (comapred to regular weather predictions). This may be because when using the sum of the gaussian kernels the correct values are not as greatly differenting from the "incorrect values". On the contrary, when multiplying the gaussian kernels the correct values gives much greater input than the incorrect values.
+
+This could be handled by choosing more sensitive coefficient for the sum-model.
 
 
 \newpage
 
-## Assignment 2 - Neural network for the sinus function
+# Assignment 3 - Neural network for the sinus function
 
-Assignment 2 is about implementing a neural network for the sinus function based on 50 data points and then choosing the best 
+Assignment 3 is about implementing a neural network for the sinus function based on 50 data points and then choosing the best 
 
 ```{r}
 
@@ -80,6 +112,8 @@ nn <- neuralnet(Sin ~ Var, data = trva, startweights = winit, hidden = c(10),
 plot(nn)
 ```
 
+![](final.nn.png)
+
 Above the neural net can be seen with its' 10 hidden nodes and its' acoompanying values.
 
 ```{r}
@@ -93,11 +127,13 @@ Finally the plot with the predicted data (black points) plotted against the orig
 
 \newpage
 
-# Appendices for code
+# Appendices
 
-## Appendix 1 - Code for assignment 1
+## Appendix I - Assignment 1
+```{r, code=readLines("Ass 1.R"), echo=TRUE, eval=FALSE}
+```
 
-## Appendix 2 - Code for assignment 2
+## Appendix II - Assignment 3
 
 ```{r echo=TRUE, warning=FALSE, eval=FALSE}
 
