@@ -1,0 +1,159 @@
+---
+title: "Lab 3"
+author: "Axel Holmberg (axeho681), Jonathan Reimertz (jonre639) and Wilhelm Hansson   (wilha431)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+# Lab 3 - Group B12
+
+
+\newpage
+
+## Assignment 2 - Neural network for the sinus function
+
+Assignment 2 is about implementing a neural network for the sinus function based on 50 data points and then choosing the best 
+
+```{r}
+
+library(neuralnet)
+library(ggplot2)
+
+set.seed(1234567890)
+#50 values between 0 and 10
+Var <- runif(50, 0, 10)
+
+# Create dataset
+trva <- data.frame(Var, Sin=sin(Var))
+
+# Divide dataset into training and validation set
+tr <- trva[1:25,] # Training
+va <- trva[26:50,] # Validation
+
+# Random initialization of the weights in the interval [-1, 1]
+# 31 weights are used
+winit <- runif(31, -1, 1)
+
+# Function predicting MSE
+mse <- function(prediction, observation) {
+  return (mean((observation - prediction)^2))
+}
+
+mse_val <- numeric()
+mse_train <- numeric()
+threshold <- numeric()
+m_sq_err <- function(pred, obs) {
+  return (mean((observation - prediction)^2))
+}
+
+for(i in 1:10) {
+  nn <- neuralnet(Sin ~ Var, data = tr, startweights = winit, hidden = c(10),
+                  threshold = i/1000)
+  
+  pred_train <- compute(nn, covariate=tr)$net.result
+  pred_val <- compute(nn, covariate=va)$net.result
+  threshold[i] <- i/1000
+  mse_val[i] <- mse(pred_val, va$Sin)
+  mse_train[i] <- mse(pred_train, tr$Sin)
+
+}
+
+plot(threshold, mse_train, type="o", ylab="MSE", main = "Training dataset")
+plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
+
+```
+
+The plots above shows the MSE for the validaiton dataset and the training dataset. One can see that the MSE is lowest for $i=4$ in the validation plot, and is thereby chosen for the neural network.
+
+```{r}
+
+# Your code here
+nn <- neuralnet(Sin ~ Var, data = trva, startweights = winit, hidden = c(10),
+                     threshold = 4/1000)
+plot(nn)
+```
+
+Above the neural net can be seen with its' 10 hidden nodes and its' acoompanying values.
+
+```{r}
+pred_nn <- prediction(nn)$rep1
+plot_net <- ggplot() + geom_point(aes(pred_nn[,1], pred_nn[,2])) + 
+  geom_point(aes(trva$Var, trva$Sin), colour="red")
+plot_net
+```
+
+Finally the plot with the predicted data (black points) plotted against the original data(red points). As one can see the points almost perfectly line up, which is the desired outcome.
+
+\newpage
+
+# Appendices for code
+
+## Appendix 1 - Code for assignment 1
+
+## Appendix 2 - Code for assignment 2
+
+```{r echo=TRUE, warning=FALSE, eval=FALSE}
+
+library(neuralnet)
+library(ggplot2)
+
+set.seed(1234567890)
+#50 values between 0 and 10
+Var <- runif(50, 0, 10)
+
+# Create dataset
+trva <- data.frame(Var, Sin=sin(Var))
+
+# Divide dataset into training and validation set
+tr <- trva[1:25,] # Training
+va <- trva[26:50,] # Validation
+
+# Random initialization of the weights in the interval [-1, 1]
+# 31 weights are used
+winit <- runif(31, -1, 1)
+
+# Function predicting the mean square error
+mse <- function(prediction, observation) {
+  return (mean((observation - prediction)^2))
+}
+
+mse_val <- numeric()
+mse_train <- numeric()
+threshold <- numeric()
+m_sq_err <- function(pred, obs) {
+  return (mean((observation - prediction)^2))
+}
+
+for(i in 1:10) {
+  nn <- neuralnet(Sin ~ Var, data = tr, startweights = winit, hidden = c(10),
+                  threshold = i/1000)
+  
+  pred_train <- compute(nn, covariate=tr)$net.result
+  pred_val <- compute(nn, covariate=va)$net.result
+  threshold[i] <- i/1000
+  mse_val[i] <- mse(pred_val, va$Sin)
+  mse_train[i] <- mse(pred_train, tr$Sin)
+  print(i)
+  
+}
+
+plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
+plot(threshold, mse_train, type="o", ylab="MSE", main = "Training dataset")
+
+nn <- neuralnet(Sin ~ Var, data = trva, startweights = winit, hidden = c(10),
+                     threshold = 4/1000)
+plot(nn)
+
+pred_nn <- prediction(nn)$rep1
+plot_net <- ggplot() + geom_point(aes(pred_nn[,1], pred_nn[,2])) + 
+  geom_point(aes(trva$Var, trva$Sin), colour="red")
+plot_net
+
+```
