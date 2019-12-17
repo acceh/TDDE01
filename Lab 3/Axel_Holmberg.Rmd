@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## Assignment 1 - Gaussian kernel
 
-Assignment 1 is about implementing a kernel method for to predict the hourly temperature for a user-defined date and place in Sweden. In the code below the chosen date is $2016-12-24$ and the place is Stockholm defined by the coordinated $59.325$, $18.071$. I implemented three kernels based on the date, time and distance using a gaussian kernel with the gaussian function $e^{-u^2}$.
+Assignment 1 is about implementing a kernel method for to predict the hourly temperature for a user-defined date and place in Sweden. In the code below the chosen date is $2001-07-24$ and the place is Stockholm defined by the coordinated $59.325$, $18.071$. I implemented three kernels based on the date, time and distance using a gaussian kernel with the gaussian function $e^{-u^2}$.
 
 ```{r}
 setwd("~/Programming/TDDE01/Lab 3")
@@ -32,9 +32,9 @@ st <- merge(stations, temps, by = "station_number")
 ## These values are up to the user. ud = user defined
 ud.lat <- 59.325 # The lat of the point to predict
 ud.long <- 18.071 # The long of the point to predict
-ud.date <-"2016-12-24" # The date to predict (up to the students) 
+ud.date <-"2001-07-24" # The date to predict (up to the students) 
 ud.h_distance <- 100000
-ud.h_date <- 10
+ud.h_date <- 30
 ud.h_time <- 4
 ##End input
 
@@ -114,10 +114,56 @@ axis(1, at=1:length(ud.times), labels=ud.times)
 
 ```
 
-The plot above shows the plot for the product of kernels.
+The plot above shows the plot for the product of kernels. As one can see the product of the kernels is a lot better at predicting the temperature than the sum.
 
-The width chosen for the three kernels are $100 000$ for distance, $10$ for date and $4$ for time. The reasoning for the kernel width is that it gives the most spread out data points for the
-## TODO Skriv färdigt detta
+As one can see there is quite a big difference between the sum of the kernels and the product of the kernels. The reason for them looking so different from each other is that the way the different k-values are handled. As in the sum of kernels the the k-values are just added on top of each other, which adds noise to the prediction and a low value of one kernel doesn't really affect the rest of the kernels. Although, with the multiplication of the k-values a low value for say the date makes that whole prediction for that temperature really low, which is more accurate.
+
+The width chosen for the three kernels are $100 000$ for distance, $30$ for date and $4$ for time. The reasoning for the kernel width is that it gives the most spread out data points for each respective value. If the h-value is too high the kernel-value will be too large and affect the tempereature too much. So what one is looking for is having a good balance between the different kernels, adjusted by the h-value. 
+
+So what I did was try the different h-values was to plot them with different values of the chosen kernel.
+
+```{r}
+h_test.plotKernalDistance <- function(distances, h) {
+  u <- distances/h
+  k <- exp(-u^2)
+  plot(k, type="l", main = "H value for distance", xlab="Distance",)
+}
+
+h_test.plotKernalDate <- function(date_diff, h) {
+  u <- date_diff/h
+  k <- exp(-u^2)
+  plot(k, type="l", main = "H value for date", xlab="Days",)
+}
+
+h_test.plotKernalHour <- function(time_diff, h) {
+  u <- time_diff/h
+  k <- exp(-u^2)
+  plot(k, type="l", main = "H value for hour", xlab="Hours", xlim=c(0,12))
+}
+
+h_test.distance <- seq(0,300000,1)
+h_test.date_diff <- seq(0,20,1)
+h_test.time_diff <- seq(0,50,1)
+h_test.plotKernalDistance(h_test.distance, ud.h_distance)
+```
+
+Above is the plot for different values dor the distance can be seen for the chosen h, which is $100 000$. As one can see the kernel is affected a lot more by stations that are close to the chosen position than the ones farther away.
+
+``` {r}
+
+h_test.plotKernalDate(h_test.date_diff, ud.h_date)
+
+```
+
+Above is the plot for days. The chosen h-value makes it so that the closer the day is the more it affects the date, which is reasonable as that makes it be affcted by what hour it is.
+
+``` {r}
+
+h_test.plotKernalHour(h_test.time_diff, ud.h_time)
+
+```
+
+Above is the plot for what hour it is. As one can see that with the chosen h-value only the hours that are close to the hour to be estimated is affecting the estimation of the temperature.
 
 ## Assignment 2 - Neural network for the sinus function
 
@@ -195,7 +241,7 @@ Finally the plot with the predicted data (black points) plotted against the orig
 
 # Appendices for code
 
-## Appendix 1 - Assignment 1
+## Appendix 1 - Code for assignment 1
 
 ```{r echo=TRUE, warning=FALSE, eval=FALSE}
 setwd("~/Programming/TDDE01/Lab 3")
@@ -272,6 +318,8 @@ tempEst <- function(data) {
     t_multi[i] <- sum(kernel_multi %*% filtered_data_by_time$air_temperature)/sum(kernel_multi)
   }
   
+  #Used to view the values of each k everytime I run to get an understanding
+  #of how the values look like for each respective run.
   View(distance)
   View(day)
   View(time)
@@ -288,5 +336,97 @@ axis(1, at=1:length(ud.times), labels=ud.times)
 plot(temps$t_multi,xaxt='n', xlab="Time", 
      ylab="Temperature", type="o", main = "Multiplication of kernels")
 axis(1, at=1:length(ud.times), labels=ud.times)
+
+
+#Below is the h-tests
+h_test.plotKernalDistance <- function(distances, h) {
+  u <- distances/h
+  k <- exp(-u^2)
+  plot(k, type="l", main = "H value for distance", xlab="Distance",)
+}
+
+h_test.plotKernalDate <- function(date_diff, h) {
+  u <- date_diff/h
+  k <- exp(-u^2)
+  plot(k, type="l", main = "H value for date", xlab="Days",)
+}
+
+h_test.plotKernalHour <- function(time_diff, h) {
+  u <- time_diff/h
+  k <- exp(-u^2)
+  plot(k, type="l", main = "H value for hour", xlab="Hours", xlim=c(0,12))
+}
+
+h_test.distance <- seq(0,300000,1)
+h_test.date_diff <- seq(0,20,1)
+h_test.time_diff <- seq(0,50,1)
+
+h_test.plotKernalDistance(h_test.distance, ud.h_distance)
+h_test.plotKernalDate(h_test.date_diff, ud.h_date)
+h_test.plotKernalHour(h_test.time_diff, ud.h_time)
+
+
 ```
 
+## Appendix 2 - Code for assignment 2
+
+
+```{r echo=TRUE, warning=FALSE, eval=FALSE}
+
+library(neuralnet)
+library(ggplot2)
+
+set.seed(1234567890)
+#50 values between 0 and 10
+Var <- runif(50, 0, 10)
+
+# Create dataset
+trva <- data.frame(Var, Sin=sin(Var))
+
+# Divide dataset into training and validation set
+tr <- trva[1:25,] # Training
+va <- trva[26:50,] # Validation
+
+# Random initialization of the weights in the interval [-1, 1]
+# 31 weights are used
+winit <- runif(31, -1, 1)
+
+# Function predicting MSE
+mse <- function(prediction, observation) {
+  return (mean((observation - prediction)^2))
+}
+
+mse_val <- numeric()
+mse_train <- numeric()
+threshold <- numeric()
+m_sq_err <- function(pred, obs) {
+  return (mean((observation - prediction)^2))
+}
+
+for(i in 1:10) {
+  nn <- neuralnet(Sin ~ Var, data = tr, startweights = winit, hidden = c(10),
+                  threshold = i/1000)
+  
+  pred_train <- compute(nn, covariate=tr)$net.result
+  pred_val <- compute(nn, covariate=va)$net.result
+  threshold[i] <- i/1000
+  mse_val[i] <- mse(pred_val, va$Sin)
+  mse_train[i] <- mse(pred_train, tr$Sin)
+  print(i)
+  
+}
+
+plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
+plot(threshold, mse_train, type="o", ylab="MSE", main = "Training dataset")
+
+# Your code here
+nn <- neuralnet(Sin ~ Var, data = trva, startweights = winit, hidden = c(10),
+                     threshold = 4/1000)
+plot(nn)
+
+pred_nn <- prediction(nn)$rep1
+plot_net <- ggplot() + geom_point(aes(pred_nn[,1], pred_nn[,2])) + 
+  geom_point(aes(trva$Var, trva$Sin), colour="red")
+plot_net
+
+```
