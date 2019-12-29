@@ -3,8 +3,10 @@ library(Metrics)
 library(MASS)
 library(ggplot2)
 library(glmnet)
+setwd("~/Programming/TDDE01/Lab 1")
 
 set.seed(12345)
+RNGversion('3.5.1')
 
 #1
 #Import data to R and create a plot of Moisture versus Protein. 
@@ -135,7 +137,10 @@ print(length(steps$coefficients)-1)
 #Fit a Ridge regression model with the same predictor and response variables. 
 #Present a plot showing how model coefficients depend on the log of the penalty factor lambda and report how the coefficients change with lambda.
 #Takes the scaled tecator of Channel1-100
-covariates=scale(tecator[,2:101])
+
+## Scale takes (x - mean(x)) / sd(x))
+covariates=scale#Scales all varables other than 
+(tecator[,2:101])
 #Scales the response-variable, which in this case is the fat
 response=scale(tecator[,102])
 #Using glmnet with alpha=0 gives the Ridge-Regression
@@ -153,7 +158,7 @@ plot(model_lasso, xvar="lambda", label=TRUE, main="Lasso Regression\n")
 #ns. Present also a plot showing the dependence of the CV score and comment how the CV score changes with 𝜆𝜆.
 
 
-cv_lasso_model_model = cv.glmnet(as.(covariates), response, alpha=1, family="gaussian", lambda=seq(0,1,0.001))
-plot(cv_lasso_model)
+cv_lasso_model = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", nfolds=40)
+plot(cv_lasso_mode1, main="Plot CV")
 coef(cv_lasso_model, s="lambda.min")
 print(cv_lasso_model$lambda.min)

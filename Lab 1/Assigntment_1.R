@@ -92,11 +92,11 @@ kknn_K30_pred = predict(kknn_K30)
 kknn_K30_pred <- ifelse(kknn_K30_pred > 0.5, 1, 0) #Split up the model into spam and not spam
 
 
-confMa_K30 = table(kknn_K30_pred, test[,"Spam"])
+confMa_K30 = table(kknn_K30_pred, test$Spam)
 misCl_K30 = 1-sum(diag(confMa_K30)/sum(confMa_K30))
 
 #Training data
-confMa_K30_train = table(kknn_K30_pred, train[,"Spam"])
+confMa_K30_train = table(kknn_K30_pred, train$Spam)
 misCl_K30_train = 1-sum(diag(confMa_K30_train)/sum(confMa_K30_train))
 
 print("Missclassification 4 testing:")

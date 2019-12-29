@@ -45,3 +45,5 @@ rsconnect/
 #Word files
 *.docx
 *.doc
+
+test_concepts.R

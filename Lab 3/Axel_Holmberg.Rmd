@@ -30,11 +30,11 @@ temps <- read.csv("temps50k.csv")
 st <- merge(stations, temps, by = "station_number")
 
 ## These values are up to the user. ud = user defined
-ud.lat <- 59.325 # The lat of the point to predict
-ud.long <- 18.071 # The long of the point to predict
-ud.date <-"2001-07-24" # The date to predict (up to the students) 
+ud.lat <- 58.4274 # The lat of the point to predict
+ud.long <- 14.826 # The long of the point to predict
+ud.date <-"2004-07-04" # The date to predict (up to the students) 
 ud.h_distance <- 100000
-ud.h_date <- 30
+ud.h_date <- 20
 ud.h_time <- 4
 ##End input
 
@@ -118,7 +118,7 @@ The plot above shows the plot for the product of kernels. As one can see the pro
 
 As one can see there is quite a big difference between the sum of the kernels and the product of the kernels. The reason for them looking so different from each other is that the way the different k-values are handled. As in the sum of kernels the the k-values are just added on top of each other, which adds noise to the prediction and a low value of one kernel doesn't really affect the rest of the kernels. Although, with the multiplication of the k-values a low value for say the date makes that whole prediction for that temperature really low, which is more accurate.
 
-The width chosen for the three kernels are $100 000$ for distance, $30$ for date and $4$ for time. The reasoning for the kernel width is that it gives the most spread out data points for each respective value. If the h-value is too high the kernel-value will be too large and affect the tempereature too much. So what one is looking for is having a good balance between the different kernels, adjusted by the h-value. 
+The width chosen for the three kernels are $100 000$ for distance, $20$ for date and $4$ for time. The reasoning for the kernel width is that it gives the most spread out data points for each respective value. If the h-value is too high the kernel-value will be too large and affect the tempereature too much. So what one is looking for is having a good balance between the different kernels, adjusted by the h-value. 
 
 So what I did was try the different h-values was to plot them with different values of the chosen kernel.
 
@@ -132,17 +132,17 @@ h_test.plotKernalDistance <- function(distances, h) {
 h_test.plotKernalDate <- function(date_diff, h) {
   u <- date_diff/h
   k <- exp(-u^2)
-  plot(k, type="l", main = "H value for date", xlab="Days",)
+  plot(k, type="l", main = "H value for date", xlab="Days", xlim=c(0,100))
 }
 
 h_test.plotKernalHour <- function(time_diff, h) {
   u <- time_diff/h
   k <- exp(-u^2)
-  plot(k, type="l", main = "H value for hour", xlab="Hours", xlim=c(0,12))
+  plot(k, type="l", main = "H value for hour", xlab="Hours", xlim=c(0,24))
 }
 
 h_test.distance <- seq(0,300000,1)
-h_test.date_diff <- seq(0,20,1)
+h_test.date_diff <- seq(0,100,1)
 h_test.time_diff <- seq(0,50,1)
 h_test.plotKernalDistance(h_test.distance, ud.h_distance)
 ```

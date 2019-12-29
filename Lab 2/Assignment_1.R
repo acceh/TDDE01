@@ -73,7 +73,6 @@ missclassification.glm <- 1-(sum(diag(confusionmatrix.glm))/sum(confusionmatrix.
 print(missclassification.glm)
 
 
-#Add not about the 0.5 times the RW
 plot_glm_line <- plot_glm_crabs + stat_function(fun=function(x){(glm_crabs[["coefficients"]][["(Intercept)"]]
                                                   +glm_crabs[["coefficients"]][["CL"]]*x)/(-glm_crabs[["coefficients"]][["RW"]]) }, 
                                                 xlim=c(5,50))
