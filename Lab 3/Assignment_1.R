@@ -13,7 +13,7 @@ ud.lat <- 59.325 # The lat of the point to predict
 ud.long <- 18.071 # The long of the point to predict
 ud.date <-"2010-05-24" # The date to predict (up to the students) 
 ud.h_distance <- 100000
-ud.h_date <- 30
+ud.h_date <- 20
 ud.h_time <- 4
 ##End input
 
@@ -46,6 +46,7 @@ dateGaussian <- function(data, target, h) {
   date_diff <- as.numeric(as.Date(data$date)-as.Date(target), unit="days")
   date_diff <- date_diff %% 365
   date_diff <- ifelse(date_diff > 182, 365-date_diff, date_diff)
+  date_diff <- sort(date_diff)
   u <- date_diff/h
   return(exp(-(u)^2))
 }
@@ -99,7 +100,7 @@ axis(1, at=1:length(ud.times), labels=ud.times)
 
 #To evaaluate h-values
 plot(1:length(distance), distance, main = "Distance")
-plot(1:length(day), day, main = "Day", xlim=c(3000,3365))
+plot(1:length(day), day, main = "Day")
 plot(1:length(time), distance, main = "Time")
 
 
@@ -125,7 +126,7 @@ h_test.plotKernalHour <- function(time_diff, h) {
 }
 
 h_test.distance <- seq(0,300000,1)
-h_test.date_diff <- seq(-600,600,1)
+h_test.date_diff <- seq(0,300,1)
 h_test.time_diff <- seq(0,50,1)
 
 h_test.plotKernalDistance(h_test.distance, ud.h_distance)

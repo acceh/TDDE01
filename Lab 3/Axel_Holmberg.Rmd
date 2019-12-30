@@ -66,6 +66,8 @@ distGaussian <- function(data, target, h) {
 dateGaussian <- function(data, target, h) {
   date_diff <- as.numeric(as.Date(data$date)-as.Date(target), unit="days")
   date_diff <- date_diff %% 365
+  date_diff <- ifelse(date_diff > 182, 365-date_diff, date_diff)
+  date_diff <- sort(date_diff)
   u <- date_diff/h
   return(exp(-(u)^2))
 }
@@ -304,9 +306,12 @@ distGaussian <- function(data, target, h) {
   return (exp(-(u)^2));
 }
 
-#Kenrel for date
+#Kernel for date
 dateGaussian <- function(data, target, h) {
   date_diff <- as.numeric(as.Date(data$date)-as.Date(target), unit="days")
+  date_diff <- date_diff %% 365
+  date_diff <- ifelse(date_diff > 182, 365-date_diff, date_diff)
+  date_diff <- sort(date_diff)
   u <- date_diff/h
   return(exp(-(u)^2))
 }
