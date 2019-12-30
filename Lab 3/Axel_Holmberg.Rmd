@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## Assignment 1 - Gaussian kernel
 
-Assignment 1 is about implementing a kernel method for to predict the hourly temperature for a user-defined date and place in Sweden. In the code below the chosen date is $2001-07-24$ and the place is Stockholm defined by the coordinated $59.325$, $18.071$. I implemented three kernels based on the date, time and distance using a gaussian kernel with the gaussian function $e^{-u^2}$.
+Assignment 1 is about implementing a kernel method for to predict the hourly temperature for a user-defined date and place in Sweden. In the code below the chosen date is $2010-05-24$ and the place is Stockholm defined by the coordinated $59.325$, $18.071$. I implemented three kernels based on the date, time and distance using a gaussian kernel with the gaussian function $e^{-u^2}$.
 
 ```{r}
 setwd("~/Programming/TDDE01/Lab 3")
@@ -62,9 +62,10 @@ distGaussian <- function(data, target, h) {
   return (exp(-(u)^2));
 }
 
-#Kenrel for date
+#Kernel for date
 dateGaussian <- function(data, target, h) {
   date_diff <- as.numeric(as.Date(data$date)-as.Date(target), unit="days")
+  date_diff <- date_diff %% 365
   u <- date_diff/h
   return(exp(-(u)^2))
 }
@@ -73,7 +74,7 @@ dateGaussian <- function(data, target, h) {
 timeGaussian <- function(data,target,h) {
   time_difference <- difftime(strptime(data$time, format="%H:%M:%S"), 
                               strptime(target, format="%H:%M:%S"))
-  u <- as.numeric(time_difference)/h
+  u <- as.numeric(time_difference/3600)/h
   return(exp(-(u)^2))
 }
   
@@ -165,6 +166,16 @@ h_test.plotKernalHour(h_test.time_diff, ud.h_time)
 
 Above is the plot for what hour it is. As one can see that with the chosen h-value only the hours that are close to the hour to be estimated is affecting the estimation of the temperature.
 
+### Corrections from group report and comments about some functions
+
+The $filterPosteriortime$-function is used to filter the time from the same date as that is stated in the lab assignment that we should do. So what the function does is that it compares the dates and then filters out all the time that is on that day so that the functions doesn't use that data to predict the temperature.
+
+The plot for the sum of kernels looks differently for me. I have also corrected my time kernel as it was missing a term that made it affect the final temp too much as it was in seconds instead of hours. That has made both the product of kernels and sum of kernels more accurate.
+
+The reason for the temperature dropping every four hours was probably due to the the change I did in my report as well that is stated in the paragraph above.
+
+
+
 \newpage
 
 ## Assignment 3 - Neural network for the sinus function
@@ -215,12 +226,12 @@ for(i in 1:10) {
 
 }
 
-plot(threshold, mse_train, type="o", ylab="MSE", main = "Training dataset")
-plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
+plot(threshold, mse_train, type="o", ylab="MSE", main = "Training data set")
+plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation data set")
 
 ```
 
-The plots above shows the MSE for the validaiton dataset and the training dataset. One can see that the MSE is lowest for $i=4$ in the validation plot, and is thereby chosen for the neural network.
+The plots above shows the MSE for the validation data set and the training data set. One can see that the MSE is lowest for $i=4$ in the validation plot, and is thereby chosen for the neural network.
 
 ```{r}
 
@@ -232,7 +243,7 @@ plot(nn)
 
 ![](nn.png)
 
-Above the neural net can be seen with its' 10 hidden nodes and its' acoompanying values.
+Above the neural net can be seen with its' 10 hidden nodes and its' accompanying values.
 
 ```{r}
 pred_nn <- prediction(nn)$rep1
@@ -304,7 +315,7 @@ dateGaussian <- function(data, target, h) {
 timeGaussian <- function(data,target,h) {
   time_difference <- difftime(strptime(data$time, format="%H:%M:%S"), 
                               strptime(target, format="%H:%M:%S"))
-  u <- as.numeric(time_difference)/h
+  u <- as.numeric(time_difference/3600)/h
   return(exp(-(u)^2))
 }
   
@@ -417,8 +428,7 @@ for(i in 1:10) {
   threshold[i] <- i/1000
   mse_val[i] <- mse(pred_val, va$Sin)
   mse_train[i] <- mse(pred_train, tr$Sin)
-  print(i)
-  
+
 }
 
 plot(threshold, mse_val, type="o", ylab="MSE", main = "Validation dataset")
