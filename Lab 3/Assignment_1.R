@@ -46,9 +46,7 @@ dateGaussian <- function(data, target, h) {
   date_diff <- as.numeric(as.Date(data$date)-as.Date(target), unit="days")
   date_diff <- date_diff %% 365
   date_diff <- ifelse(date_diff > 182, 365-date_diff, date_diff)
-  print(date_diff)
   u <- date_diff/h
-  print(u)
   return(exp(-(u)^2))
 }
 
@@ -114,6 +112,8 @@ h_test.plotKernalDistance <- function(distances, h) {
 
 h_test.plotKernalDate <- function(date_diff, h) {
   u <- date_diff/h
+  date_diff <- date_diff %% 365
+  date_diff <- ifelse(date_diff > 182, 365-date_diff, date_diff)
   k <- exp(-u^2)
   plot(k, type="l", main = "H value for date", xlab="Days",)
 }
@@ -125,7 +125,7 @@ h_test.plotKernalHour <- function(time_diff, h) {
 }
 
 h_test.distance <- seq(0,300000,1)
-h_test.date_diff <- seq(0,20,1)
+h_test.date_diff <- seq(-600,600,1)
 h_test.time_diff <- seq(0,50,1)
 
 h_test.plotKernalDistance(h_test.distance, ud.h_distance)
