@@ -1,4 +1,3 @@
-
 library(neuralnet)
 library(ggplot2)
 
@@ -15,6 +14,8 @@ va <- trva[26:50,] # Validation
 
 # Random initialization of the weights in the interval [-1, 1]
 # 31 weights are used
+# Nw = (I+1)*H1 +(H1+1)*H2 +(H2+1)*O, where H is hidden layer, I is inputs and O is outputs.
+# So in this case it is Nw=(1+1)*10+(10+1)*1=31
 winit <- runif(31, -1, 1)
 
 # Function predicting MSE

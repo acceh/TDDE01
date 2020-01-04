@@ -10,14 +10,17 @@ machines <- read_excel("machines.xlsx")
 
 #2
 #Assume the probability model p(x|theta)=theta*exp(-theta*x) for x=Length in which
-#observations are independent and identically distributed. What is the distribution type of x? Write a function that 
-#computes the log-likelihood log(p(x|𝜃)) for a gven 𝜃 and a given data vector x.
+#observations are independent and identically distributed. 
+#What is the distribution type of x? Write a function that 
+#computes the log-likelihood log(p(x|theta )for a gven 𝜃 and a given data vector x.
 #Plot the curve showing the dependence of log-likelihood on 𝜃 where the entire data is used for fitting.
 #What is the maximum likelihood value of 𝜃𝜃 according to the plot?
 
-#Comes from  p(x|θ) = θ*exp(-θx) and then using thew likelihood function with it and then minimizing that with -log(L(θ))=-log((θ^n*exp(-θ*sum(x)). 
-likelihoodlog = function(x, θ) {
-  return(-dim(x)[1]*log(θ) + θ*sum(x))
+#Comes from  p(x|theta) = thetta*exp(-theta) then using thew likelihood 
+#function with it and then minimizing that with -log(L(θ))=-thetaog((θ^n*ethetap(-θ*sumthetax)). 
+like
+lihoodlog = function(x, (x,theta) {
+eturn(-dim(x)[1]*log(theta) + thetax))
 }
 print(likelihoodlog(machines[1], 1))
 
@@ -27,7 +30,7 @@ curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
 #Min theta. Comes from deriving the loglikelihood-function. The more data I have the more exactly I can pinpoint the exact point of failure
 minvalue = dim(machines)/sum(machines)
 print("Min θ:")
-minthetalikelihood = function(x) {
+thetainthetalikelihood = function(x) {
   return (dim(x)[1]/sum(x))
 }
 print(minthetalikelihood(machines))
@@ -47,18 +50,15 @@ print((dim(machines[1:6,])[1])/sum(machines[1:6,]))
 #Plot the curve showing the dependence of l(theta) on theta computed using the entire data and overlay it with a plot 
 #from step 2. Find an optimal theta and compare your result with the previous findings.
 
-bayesianfunc = function(x, θ, λ) {
-  retur#Osäker om +1 eller ej!
-  n(likelihoodlog(x, θ) - log(λ) + λ*θ)
-} 
-
+bayesianfunc = function(x, θ, λ)theta, lambda) {
+  return(likelihoodlog(x, theta) - log(lambda) + lambda*theta
 print("Bayesianfunction:")
 print(bayesianfunc(machines,1,10))
 
-curve(bayesianfunc(machines,x,10), xlab="θ", ylab="l(θ)", from=0, to=4, col="green", add=TRUE)
+curve(bayesianfunc(machines,x,10), xlab="θ", ytheta", ylab="l(thetarom=0, to=4, col="green", add=TRUE)
 
 #min theta for bayesianfunc. I get it from deriving the bayesianfunc with respect to theta and set it to = 0 to get the min
-print("Min θ bayesian func.:")
+print("Min θ baythetasian func.:")
 print(dim(machines)[1]/(sum(machines)+10))
 
 

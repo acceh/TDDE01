@@ -19,7 +19,6 @@ protein = tecator$Protein;
 
 #Plots the moisture and protein
 plot(protein, moisture, xlab="Moisture", ylab="Protein", main="Moisture vs. Protein")
-
 #Quite well with a linear model. Prob quite large deviations sometimes though
 
 #Below is just to see the linear model
@@ -37,7 +36,7 @@ lines(protein, fitted1[, "fit"])
 #Consider model 𝑀𝑀𝑖𝑖 in which Moisture is normally distributed, and the expected Moisture
 #is a polynomial function of Protein including the polynomial terms up to power 𝑖𝑖
 #(i.e M1 is a linear model, M2 is a quadratic model and so on). 
-#Report a probabilistic model that describes 𝑀𝑀𝑖𝑖 . Why is it appropriate to use 
+#Report a probabilistic model that describes Mi . Why is it appropriate to use 
 #MSE criterion when fitting this model to a training data?
 
 #Consider the functions are:
@@ -46,7 +45,7 @@ lines(protein, fitted1[, "fit"])
 #and so on
 
 #3
-#Divide the data into training and validation sets( 50%/50%) and fit models 𝑀𝑀𝑖𝑖 , 𝑖𝑖 = 1 ... 6. 
+#Divide the data into training and validation sets( 50%/50%) and fit models Mi , i = 1 ... 6. 
 #For each model, record the training and the validation MSE and present a plot showing how 
 #training and validation MSE depend on i (write some R code to make this plot). 
 #Which model is best according to the plot? How do the MSE values change and why? 
@@ -139,9 +138,8 @@ print(length(steps$coefficients)-1)
 #Takes the scaled tecator of Channel1-100
 
 ## Scale takes (x - mean(x)) / sd(x))
-covariates=scale#Scales all varables other than 
-(tecator[,2:101])
-#Scales the response-variable, which in this case is the fat
+covariates=scale(tecator[,2:101])
+#Scales all varables other than ponse-variable, which in this case is the fat
 response=scale(tecator[,102])
 #Using glmnet with alpha=0 gives the Ridge-Regression
 model_ridge=glmnet(as.matrix(covariates), response, alpha=0,family="gaussian")
@@ -156,9 +154,7 @@ plot(model_lasso, xvar="lambda", label=TRUE, main="Lasso Regression\n")
 #Use cross-validation to find the optimal LASSO model (make sure that case
 #𝜆𝜆 = 0 is also considered by the procedure) , report the optimal 𝜆𝜆 and how many variables were chosen by the model and make conclusio
 #ns. Present also a plot showing the dependence of the CV score and comment how the CV score changes with 𝜆𝜆.
-
-
 cv_lasso_model = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", nfolds=40)
-plot(cv_lasso_mode1, main="Plot CV")
+plot(cv_lasso_model, main="Plot CV")
 coef(cv_lasso_model, s="lambda.min")
 print(cv_lasso_model$lambda.min)

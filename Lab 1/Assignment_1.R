@@ -14,7 +14,8 @@ train=data[id,]
 test=data[-id,]
 
 #2.
-#Use logistic regression (functions glm(), predict()) to classify the training and test data by the classification principle
+#Use logistic regression (functions glm(), predict()) to classify the training 
+#and test data by the classification principle
 #Y_hat=1 if (Y=1|X) > 0.5, otherwise Y_hat=0
 #and report the confusion matrices (use table()) and the misclassification rates for
 #training and test data. Analyse the obtained results.
@@ -27,9 +28,10 @@ probability <- ifelse(predictModel_test > 0.5, "1", "0") #Split up the model int
 
 confMatrix <- table(probability, test[,"Spam"]) #Confusionmatrix from the model
 
-modelDiag <- diag(confMatrix) #Diagonal of the 
+modelDiag <- diag(confMatrix) #Diagonal of the confMa
 
-missClMa1 = 1-(sum(modelDiag)/sum(confMatrix)) #Missclassfication rate by dividing the diagonal from the confusionmatricx with the whole confusionmatrix
+#Missclassfication rate by dividing the diagonal from the confusionmatricx with the whole confusionmatrix
+missClMa1 = 1-(sum(modelDiag)/sum(confMatrix))
 
 #Same but for training data
 predictModel_train = predict(model, newdata=train, type="response") 

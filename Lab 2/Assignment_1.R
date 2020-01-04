@@ -15,11 +15,7 @@ australian_crabs.gender = split(australian_crabs,australian_crabs$sex)
 plot_crabs <- ggplot(australian_crabs, aes(x=CL, y=RW, color=australian_crabs$sex)) + geom_point()
 plot_crabs
 
-# 
-
-
 #2
-
 #LDA-model with target sex and features CL and RW. Gives proportional prior
 lda_crabs <- lda(sex~RW+CL, data=australian_crabs)
 print(lda_crabs)
@@ -60,7 +56,7 @@ glm_crabs = glm(sex~RW+CL, family=binomial, data=australian_crabs)
 glm_crabs.predicted = predict(glm_crabs, type="response")
 print(glm_crabs.predicted)
 #Split data into Male and Female depending on the predicted value
-glm_crabs.predicted <- ifelse(glm_crabs.predicted > 0.5, "Male", "Female") #Split up the model into spam and not spam
+glm_crabs.predicted <- ifelse(glm_crabs.predicted > 0.5, "Male", "Female") 
 print(glm_crabs.predicted)
 
 plot_glm_crabs <- ggplot(australian_crabs, aes(x=CL, y=RW, color=glm_crabs.predicted)) + geom_point()

@@ -84,6 +84,10 @@ print(testMisClass)
 
 
 #4
+####NAIVE BAYES#######
+#List the main advantage of Navie Bayes?
+#A Naive Bayes classifier converges very quickly as compared to other models like logistic regression. 
+#As a result, we need less training data in case of naive Bayes classifier .
 set.seed(12345)
 
 

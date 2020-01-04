@@ -5,6 +5,21 @@ data <- read.csv2("NIRSpectra.csv")
 
 data1 <- data
 
+######SUMMARY########
+########PCA##########
+#It reduces the dimensions to avoid the problem of overfitting.	
+#It deals with the Principal Components.
+#It focuses on maximizing the variance.	
+#It focuses on the mutual orthogonality property of the principal components.	
+#It doesn’t focus on the mutual independence of the components.	
+
+########ICA##########
+#It decomposes the mixed signal into its independent sources’ signals.
+#It deals with the Independent Components.
+#It doesn’t focus on the issue of variance among the data points.
+#It doesn’t focus on the mutual orthogonality of the components.
+#It focuses on the mutual independence of the components.
+
 #1
 #Conduct a standard PCA by using the feature space and provide 
 #a plot explaining how much variation is explained by each feature. 
@@ -13,6 +28,7 @@ data1 <- data
 #Provide also a plot of the scores in the coordinates (PC1, PC2). 
 #Are there unusual diesel fuels according to this plot?
 data1$Viscosity = c()
+#Used to reset the Viscocity
 
 res = prcomp(data1)
 
@@ -20,7 +36,7 @@ lambda = res$sdev^2
 
 lambda
 
-
+#Prints the effect of each in percentage
 sprintf("%2.3f", (lambda)/sum(lambda)*100)
 
 #Histogram of variance

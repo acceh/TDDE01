@@ -1,0 +1,21 @@
+---
+title: "Helpfile"
+author: "Axel Holmberg (axeho681)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+#Helpful info
+
+**How to ensure that your model is not overfitting?**
+Keep the design of the model simple. Try to reduce the noise in the model by considering fewer variables and parameters.
+Cross-validation techniques such as K-folds cross validation help us keep overfitting under control.
+Regularization techniques such as LASSO help in avoiding overfitting by penalizing certain parameters if they are likely to cause overfitting.
+
+
+
+# Code from labs with comments
+

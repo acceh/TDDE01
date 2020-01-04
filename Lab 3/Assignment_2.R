@@ -14,7 +14,6 @@ test = data[-id, ]
 
 width <- 0.05
 
-
 filter_0_5 <-
   ksvm(type ~ .,
        data = train,
