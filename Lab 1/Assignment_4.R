@@ -152,9 +152,12 @@ plot(model_lasso, xvar="lambda", label=TRUE, main="Lasso Regression\n")
 
 #7
 #Use cross-validation to find the optimal LASSO model (make sure that case
-#𝜆𝜆 = 0 is also considered by the procedure) , report the optimal 𝜆𝜆 and how many variables were chosen by the model and make conclusio
-#ns. Present also a plot showing the dependence of the CV score and comment how the CV score changes with 𝜆𝜆.
-cv_lasso_model = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", nfolds=40)
+#𝜆𝜆 = 0lambdaalso considered by the procedure) , report the optimal 𝜆𝜆 anal lambda ny variables were chosen by the model and make conclusio
+
+##ns. Prest also a plot showing the dependence of the CV sco
+#re and comment how the CV score changes with 𝜆𝜆.
+cv_laslambda.
+el = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", nfolds=40)
 plot(cv_lasso_model, main="Plot CV")
 coef(cv_lasso_model, s="lambda.min")
 print(cv_lasso_model$lambda.min)

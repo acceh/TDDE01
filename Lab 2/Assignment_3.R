@@ -72,6 +72,8 @@ plot_tree_data
 #bumpy and try to explain why. Consider the width of the confidence band and comment whether
 #results of the regression model in step 2 seem to be reliable.
 
+#Function to be used in the bootstrapping function for the bootstrapping.
+#Set after the statics word
 boot_function <- function(data_boot, id) {
   data_boot <- data_boot[id, ]
   model.tree.boot <-

@@ -18,19 +18,24 @@ machines <- read_excel("machines.xlsx")
 
 #Comes from  p(x|theta) = thetta*exp(-theta) then using thew likelihood 
 #function with it and then minimizing that with -log(L(θ))=-thetaog((θ^n*ethetap(-θ*sumthetax)). 
-like
-lihoodlog = function(x, (x,theta) {
-eturn(-dim(x)[1]*log(theta) + thetax))
+likelihoodlog = function(x, theta) {
+  return(-dim(x)[1] * log(theta) + theta * sum(x))
 }
 print(likelihoodlog(machines[1], 1))
 
+
 #Plot curve
-curve(likelihoodlog(machines, x),xlim=c(0,4), ylim=c(0,60) , col="blue")
+curve(
+  likelihoodlog(machines, x),
+  xlim = c(0, 4),
+  ylim = c(0,60),
+  col = "blue"
+)
 
 #Min theta. Comes from deriving the loglikelihood-function. The more data I have the more exactly I can pinpoint the exact point of failure
 minvalue = dim(machines)/sum(machines)
 print("Min θ:")
-thetainthetalikelihood = function(x) {
+minthetalikelihood = function(x) {
   return (dim(x)[1]/sum(x))
 }
 print(minthetalikelihood(machines))
@@ -50,15 +55,16 @@ print((dim(machines[1:6,])[1])/sum(machines[1:6,]))
 #Plot the curve showing the dependence of l(theta) on theta computed using the entire data and overlay it with a plot 
 #from step 2. Find an optimal theta and compare your result with the previous findings.
 
-bayesianfunc = function(x, θ, λ)theta, lambda) {
-  return(likelihoodlog(x, theta) - log(lambda) + lambda*theta
+bayesianfunc = function(x, theta, lambda) {
+  return(likelihoodlog(x, theta) - log(lambda) + lambda * theta)
+}
 print("Bayesianfunction:")
 print(bayesianfunc(machines,1,10))
 
-curve(bayesianfunc(machines,x,10), xlab="θ", ytheta", ylab="l(thetarom=0, to=4, col="green", add=TRUE)
+curve(bayesianfunc(machines,x,10), xlab="Theta", ylab="l(Theta)", from=0, to=4, col="green", add=TRUE)
 
 #min theta for bayesianfunc. I get it from deriving the bayesianfunc with respect to theta and set it to = 0 to get the min
-print("Min θ baythetasian func.:")
+print("Min theta baythetasian func.:")
 print(dim(machines)[1]/(sum(machines)+10))
 
 

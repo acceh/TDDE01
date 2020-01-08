@@ -1,3 +1,18 @@
+#Implement an R function that performs feature selection (best subset selection) 
+#in linear regression by using k-fold cross-validation without using any 
+#specialized function like lm() (use only basic R functions). Your function 
+#should depend on:
+#• X: matrix containing X measurements. 
+#• Y: vector containing Y measurements
+#• Nfolds: number of folds in the cross-validation.
+#You may assume in your code that matrix X has 5 columns. The function 
+#should plot the CV scores computed for various feature subsets against 
+#the number of features, and it should also return the optimal subset of 
+#features and the corresponding cross-validation (CV) score. Before splitting 
+#into folds, the data should be permuted, and the seed 12345 should be used for 
+#that purpose.
+
+#Function for linear model
 mylin = function(X, Y, Xpred) {
 	Xpred1 = cbind(1, Xpred)
 	X1 = cbind(1, X)
@@ -29,16 +44,13 @@ myCV = function(X, Y, Nfolds) {
 							next()
 						SSE = 0
 						for (k in 1:Nfolds) {
-							#MISSING:compute which indices should belong to current fold
 							indices <-
 								ind[which(folds_obs == k)] #indeces of the observations in fold k
-							#MISSING:implement cross-validation for model with features in "model" and iteration i.
 							X_mylin <-
 								X[-indices, which(model == 1)]
 							XPred_mylin <-
 								X[indices, which(model == 1)]
 							Y_mylin <- Y[-indices]
-							#MISSING:Get the predicted values for fold k, Ypred, and the original values for fold 'k',
 							Ypred <-
 								mylin(X_mylin, Y_mylin, XPred_mylin) 
 							Yp <- Y[indices]
@@ -50,11 +62,17 @@ myCV = function(X, Y, Nfolds) {
 						Features[[curr]] =
 							model
 					}
-	plot(Nfeat, MSE) #MISSING: plot MSE against number of features
+	plot(Nfeat, MSE) 
 	abline(h = MSE[which.min(MSE)], col = "red")
 	i = which.min(MSE)
 	return(list(CV = MSE[i], Features = Features[[i]]))
 }
 
+#Test your function on data set swiss available in the standard R repository: • Fertility should be Y
+#• All other variables should be X
+#• Nfolds should be 5
+#Report the resulting plot and interpret it. Report the optimal subset 
+#of features and comment whether it is reasonable that these specific 
+#features have largest impact on the target.
 data("swiss")
 myCV(as.matrix(swiss[, 2:6]), swiss[[1]], 5)
