@@ -4,7 +4,6 @@ library(tree)
 library(boot)
 RNGversion('3.5.1')
 
-
 #The data file State.csv contains per capita state and local public expenditures
 #and associated state demographic and economic characteristics, 1960, and there are variables
 #• MET: Percentage of population living in standard metropolitan areas
@@ -193,7 +192,6 @@ plot_boot4 <- plot_boot +
     )
   ) + labs(title = "Parametric bootstrap", x = "MET", y = "EX")
 
-
 plot_boot4
 #This graph shows the confidence band (blue) and the prediction band (black)
 #for the parametric bootstrap. The confidence band shows the confidence interval
@@ -201,7 +199,6 @@ plot_boot4
 #estimations. As one can see the prediction interval is quite good,
 #but the confidence interval isnt that good as it misses more than 5 % of the
 #data points.
-
 
 #5
 #Consider the histogram of residuals from step 2 and suggest what 

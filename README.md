@@ -15,6 +15,9 @@ An introductory course to machine learning at Linköping University Sweden.
 - Likelihood functions
 - Bayesian functions
 
+### Assignment 3
+- Manual CV with linear model
+
 ### Assignment 4
 - Linear models
 - Polynomial functions
@@ -47,6 +50,9 @@ An introductory course to machine learning at Linköping University Sweden.
 ### Assignment 1
 - Kernel functions, in this case a bayesian kernel
 - Both the product of kernels and sum of kernels to compare
+
+### Assignment 2
+- Support vector machines with varying width
 
 ### Assignment 3
 - Neural net with 10 hidden nodes for estimating a sinus-function
